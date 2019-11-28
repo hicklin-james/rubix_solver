@@ -3,7 +3,7 @@
 // System headers
 #include <array>
 // Local headers
-#include "../Util/util.h"
+#include "util.h"
 
 class CubeFace
 {
