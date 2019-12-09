@@ -3,6 +3,7 @@
 #include "enum2Str.hpp"
 #include <iomanip>
 
+CubeFace::CubeFace() {}
 
 CubeFace::CubeFace(FaceOrientation orientation, std::array<std::array<FaceColor,3>,3> squares)
   : currentOrientation(orientation) 
@@ -10,15 +11,20 @@ CubeFace::CubeFace(FaceOrientation orientation, std::array<std::array<FaceColor,
 
 void CubeFace::printFace() const {
   std::cout << EnumUtils::enum2Str::toStr(currentOrientation) << std::endl;
-  for(const auto& fca : squares) {
-    if (!fca.empty()) {
-      auto item = fca.begin();
-      std::cout << EnumUtils::enum2Str::toStr(*item);
-      while(fca.cend() != ++item) {
-        std::cout << " " << EnumUtils::enum2Str::toStr(*item);
-      }
-    }
+  for(int i = 0; i < squares.size(); i++) {
+    printRow(i);
     std::cout << std::endl;
+  }
+}
+
+void CubeFace::printRow(int rowIndex) const {
+  const auto fca = squares.at(rowIndex);
+  if (!fca.empty()) {
+    auto item = fca.begin();
+    std::cout << EnumUtils::enum2Str::toStr(*item);
+    while(fca.cend() != ++item) {
+      std::cout << " " << EnumUtils::enum2Str::toStr(*item);
+    }
   }
 }
 

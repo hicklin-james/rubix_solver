@@ -17,8 +17,23 @@ class Cube
 
     // These functions rotate the entire cube, which means the
     // F, R, L, U, D, and B faces change
-    void rotateClockwise(); // [] <--
-    void rotateAntiClockwise(); // [] -->
-    void rotateOver() // [] ^
-    void rotateUnder() // [] v
+    void rotateCubeClockwise();
+    void rotateCubeAntiClockwise();
+    void rotateCubeUp();
+    void rotateCubeDown();
+
+    // These are the main rotation procedures
+    void r();
+    void ri();
+    void l();
+    void li();
+    void f();
+    void fi();
+    void u();
+    void ui();
+    void d();
+    void di();
+    void b();
+    void bi();
+
 };
