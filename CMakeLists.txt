@@ -11,6 +11,8 @@ project( rubix_solver )
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
 include_directories( include )
+# logging headers
+include_directories( external/spdlog/include )
 
 enum2str_generate(
   PATH       "generated/"
@@ -27,3 +29,4 @@ file(GLOB SOURCES "src/*.cpp")
 file(GLOB GEN_SOURCES "generated/*.cpp")
  
 add_executable(solver ${SOURCES} ${GEN_SOURCES})
+target_link_libraries(solver ${CMAKE_SOURCE_DIR}/external/spdlog/build/libspdlog.a)

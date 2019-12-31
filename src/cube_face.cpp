@@ -9,6 +9,7 @@ CubeFace::CubeFace(FaceOrientation orientation, std::array<std::array<FaceColor,
   : currentOrientation(orientation) 
   , squares(squares) {}
 
+/**
 void CubeFace::printFace() const {
   std::cout << EnumUtils::enum2Str::toStr(currentOrientation) << std::endl;
   for(int i = 0; i < squares.size(); i++) {
@@ -16,14 +17,15 @@ void CubeFace::printFace() const {
     std::cout << std::endl;
   }
 }
-
-void CubeFace::printRow(int rowIndex) const {
+**/
+  
+void CubeFace::printRow(int rowIndex, std::stringstream &stringBuf) const {
   const auto fca = squares.at(rowIndex);
   if (!fca.empty()) {
     auto item = fca.begin();
-    std::cout << EnumUtils::enum2Str::toStr(*item);
+    stringBuf << EnumUtils::enum2Str::toStr(*item);
     while(fca.cend() != ++item) {
-      std::cout << " " << EnumUtils::enum2Str::toStr(*item);
+      stringBuf << " " << EnumUtils::enum2Str::toStr(*item);
     }
   }
 }
@@ -56,4 +58,12 @@ void CubeFace::rotateFaceAntiClockwise() {
       squares[size-1-y][x] = std::move(temp);
     }
   }
+}
+
+FaceOrientation CubeFace::getOrientation() const {
+  return currentOrientation;
+}
+
+FaceColor CubeFace::getColorAtIndices(int i, int j) const {
+  return squares.at(i).at(j);
 }

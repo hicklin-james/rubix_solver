@@ -15,9 +15,11 @@ class CubeFace
     
     CubeFace();
     CubeFace(FaceOrientation orientation, std::array<std::array<FaceColor,3>,3> squares);
-    void printFace() const;
-    void printRow(int rowIndex) const;
+    /** void printFace() const; **/
+    void printRow(int rowIndex, std::stringstream &stringBuf) const;
     void setOrientation(FaceOrientation newOrientation);
+    FaceOrientation getOrientation() const;
+    FaceColor getColorAtIndices(int i, int j) const;
     void rotateFaceClockwise();
     void rotateFaceAntiClockwise();
 };

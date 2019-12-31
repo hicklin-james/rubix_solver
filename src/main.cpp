@@ -1,6 +1,9 @@
 #include "util.h"
 #include "cube.h"
 #include "face_parser.h"
+#include "cross.h"
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
 #include <array>
 #include <iostream>
 #include <string>
@@ -8,13 +11,15 @@
 
 int main()
 {
+  spdlog::info("Welcome to the rubix solver!");
+
   std::array<std::string, 6> unparsedCube{ 
-    "W,W,W,W,W,W,W,W,W", // front
-    "W,W,W,W,W,W,W,W,W", // left
-    "W,W,W,W,W,W,W,W,W", // right
-    "W,W,W,W,W,W,W,W,W", // bottom
-    "W,W,W,W,W,W,W,W,W", // top
-    "O,W,W,W,W,W,W,W,W"  // back
+    "O,W,O,B,W,W,G,Y,B", // front
+    "Y,G,W,G,G,O,W,W,R", // left
+    "W,O,B,R,B,R,O,Y,G", // right
+    "W,R,Y,B,R,G,B,B,Y", // bottom
+    "G,Y,Y,R,O,G,G,O,B", // top
+    "R,O,O,B,Y,W,R,Y,R"  // back
   };
 
   CubeFace front;
@@ -36,10 +41,62 @@ int main()
   FaceParser::parseFaceFromString(back, unparsedCube.at(5), FaceOrientation::BA);
 
   Cube cube(std::array<CubeFace, 6>{front, left, right, bottom, top, back});
+
   cube.printCube();
-  std::cout << std::endl;
-  cube.ui();
+
+  Cross crossSolver(cube);
+
+  //cube.rotateCubeAntiClockwise();
+  //cube.printCube();
+  crossSolver.reorientWhiteFaceToTop();
+  
   cube.printCube();
+
+
+  /** This is a valid solve for the cube! **/
+
+  // std::array<std::string, 6> unparsedCube{ 
+  //   "O,W,O,B,W,W,G,Y,B", // front
+  //   "Y,G,W,G,G,O,W,W,R", // left
+  //   "W,O,B,R,B,R,O,Y,G", // right
+  //   "W,R,Y,B,R,G,B,B,Y", // bottom
+  //   "G,Y,Y,R,O,G,G,O,B", // top
+  //   "R,O,O,B,Y,W,R,Y,R"  // back
+  // };
+
+  // cube.f();
+  // cube.f();
+  // cube.r();
+  // cube.r();
+  // cube.ui();
+  // cube.d();
+  // cube.r();
+  // cube.r();
+  // cube.l();
+  // cube.f();
+  // cube.f();
+  // cube.b();
+  // cube.d();
+  // cube.f();
+  // cube.b();
+  // cube.b();
+  // cube.l();
+  // cube.d();
+  // cube.b();
+  // cube.b();
+  // cube.r();
+  // cube.r();
+  // cube.l();
+  // cube.l();
+  // cube.u();
+  // cube.u();
+  // cube.r();
+  // cube.r();
+  // cube.u();
+  // cube.l();
+  // cube.l();
+
+  // cube.printCube();
 
   return 0;
 }
