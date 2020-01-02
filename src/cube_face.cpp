@@ -19,7 +19,7 @@ void CubeFace::printFace() const {
 }
 **/
   
-void CubeFace::printRow(int rowIndex, std::stringstream &stringBuf) const {
+void CubeFace::printRow(int rowIndex, std::ostream &stringBuf) const {
   const auto fca = squares.at(rowIndex);
   if (!fca.empty()) {
     auto item = fca.begin();

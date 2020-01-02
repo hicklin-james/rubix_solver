@@ -4,6 +4,7 @@
 #include "util.h"
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
+#include "face_parser.h"
 // system headers
 #include <iostream>
 #include <iomanip>
@@ -21,8 +22,54 @@ std::array<CubeFace, 6>::const_iterator Cube::roEnd() {
   return cubeState.end();
 }
 
+const CubeFace Cube::getFaceAtOrientation(FaceOrientation orientation) {
+  switch (orientation) {
+  case FaceOrientation::FR:
+    return cubeState[0];
+    break;
+  case FaceOrientation::LE:
+    return cubeState[1];
+    break;
+  case FaceOrientation::RI: 
+    return cubeState[2];
+    break;
+  case FaceOrientation::BA:
+    return cubeState[5];
+    break;
+  case FaceOrientation::DO:
+    return cubeState[3];
+    break;
+  case FaceOrientation::UP:
+    return cubeState[4];
+    break; 
+  default:
+    CubeFace err_face;
+    FaceParser::parseFaceFromString(err_face, "W,W,W,W,W,W,W,W,W", FaceOrientation::FO_ERR);
+    return err_face;
+  }
+}
+
+FaceColor Cube::getColorAtFaceAndLocation(FaceOrientation orientation, int i, int j) {
+  auto face = getFaceAtOrientation(orientation);
+  if (face.getOrientation() != FaceOrientation::FO_ERR) {
+    return face.squares[i][j];
+  } else {
+    return FaceColor::FC_ERR;
+  }
+}
+
+void Cube::printMoveHistory() const {
+  std::string historyString = "";
+  for (auto move : moveHistory) {
+     historyString += move + ",";
+  }
+  historyString.pop_back();
+  std::cout << "Moves required: " << historyString << std::endl;
+
+}
+
 void Cube::printCube() const {
-  std::stringstream stringBuf;
+  std::ostringstream stringBuf;
   stringBuf << "Current cube state:" << std::endl;
   stringBuf << std::left << std::setw(8) << "";
   cubeState[4].printRow(0, stringBuf);
@@ -72,6 +119,7 @@ void Cube::printCube() const {
 }
 
 void Cube::rotateCubeLeft() {
+  moveHistory.push_back("RLE");
   const auto tempF = std::move(cubeState[0]);
   const auto tempL = std::move(cubeState[1]);
   const auto tempB = std::move(cubeState[5]);
@@ -90,6 +138,7 @@ void Cube::rotateCubeLeft() {
 }
 
 void Cube::rotateCubeRight() {
+  moveHistory.push_back("RRI");
   const auto tempF = std::move(cubeState[0]);
   const auto tempL = std::move(cubeState[1]);
   const auto tempB = std::move(cubeState[5]);
@@ -108,6 +157,7 @@ void Cube::rotateCubeRight() {
 }
 
 void Cube::rotateCubeUp() {
+  moveHistory.push_back("RUP");
   const auto tempF = std::move(cubeState[0]);
   const auto tempU = std::move(cubeState[4]);
   const auto tempD = std::move(cubeState[3]);
@@ -130,6 +180,7 @@ void Cube::rotateCubeUp() {
 }
 
 void Cube::rotateCubeDown() {
+  moveHistory.push_back("RDO");
   const auto tempF = std::move(cubeState[0]);
   const auto tempU = std::move(cubeState[4]);
   const auto tempD = std::move(cubeState[3]);
@@ -152,6 +203,7 @@ void Cube::rotateCubeDown() {
 }
 
 void Cube::rotateCubeClockwise() {
+  moveHistory.push_back("RCW");
   const auto tempL = std::move(cubeState[1]);
   const auto tempU = std::move(cubeState[4]);
   const auto tempR = std::move(cubeState[2]);
@@ -175,6 +227,7 @@ void Cube::rotateCubeClockwise() {
 }
 
 void Cube::rotateCubeAntiClockwise() {
+  moveHistory.push_back("RAC");
   const auto tempL = std::move(cubeState[1]);
   const auto tempU = std::move(cubeState[4]);
   const auto tempR = std::move(cubeState[2]);
@@ -198,6 +251,7 @@ void Cube::rotateCubeAntiClockwise() {
 }
 
 void Cube::f() {
+  moveHistory.push_back("f");
   std::array<FaceColor,3> topRotated = std::move(cubeState[4].squares[2]);
   std::array<FaceColor,3> leftRotated{cubeState[1].squares[2][2], cubeState[1].squares[1][2], cubeState[1].squares[0][2]};
   std::array<FaceColor,3> bottomRotated = std::move(cubeState[3].squares[0]);
@@ -216,6 +270,7 @@ void Cube::f() {
 }
 
 void Cube::fi() {
+  moveHistory.push_back("fi");
   std::array<FaceColor,3> topRotated = std::move(cubeState[4].squares[2]);
   std::array<FaceColor,3> leftRotated{cubeState[1].squares[0][2], cubeState[1].squares[1][2], cubeState[1].squares[2][2]};
   std::array<FaceColor,3> bottomRotated = std::move(cubeState[3].squares[0]);
@@ -234,6 +289,7 @@ void Cube::fi() {
 }
 
 void Cube::r() {
+  moveHistory.push_back("r");
   std::array<FaceColor,3> topRotated{cubeState[4].squares[0][2], cubeState[4].squares[1][2], cubeState[4].squares[2][2]};
   std::array<FaceColor,3> backRotated{cubeState[5].squares[0][0], cubeState[5].squares[1][0], cubeState[5].squares[2][0]};
   std::array<FaceColor,3> bottomRotated{cubeState[3].squares[0][2], cubeState[3].squares[1][2], cubeState[3].squares[2][2]};
@@ -256,6 +312,7 @@ void Cube::r() {
 }
 
 void Cube::ri() {
+  moveHistory.push_back("ri");
   std::array<FaceColor,3> topRotated{cubeState[4].squares[0][2], cubeState[4].squares[1][2], cubeState[4].squares[2][2]};
   std::array<FaceColor,3> backRotated{cubeState[5].squares[0][0], cubeState[5].squares[1][0], cubeState[5].squares[2][0]};
   std::array<FaceColor,3> bottomRotated{cubeState[3].squares[0][2], cubeState[3].squares[1][2], cubeState[3].squares[2][2]};
@@ -278,6 +335,7 @@ void Cube::ri() {
 }
 
 void Cube::l() {
+  moveHistory.push_back("l");
   std::array<FaceColor,3> topRotated{cubeState[4].squares[0][0], cubeState[4].squares[1][0], cubeState[4].squares[2][0]};
   std::array<FaceColor,3> backRotated{cubeState[5].squares[0][2], cubeState[5].squares[1][2], cubeState[5].squares[2][2]};
   std::array<FaceColor,3> bottomRotated{cubeState[3].squares[0][0], cubeState[3].squares[1][0], cubeState[3].squares[2][0]};
@@ -300,6 +358,7 @@ void Cube::l() {
 }
 
 void Cube::li() {
+  moveHistory.push_back("li");
   std::array<FaceColor,3> topRotated{cubeState[4].squares[0][0], cubeState[4].squares[1][0], cubeState[4].squares[2][0]};
   std::array<FaceColor,3> backRotated{cubeState[5].squares[0][2], cubeState[5].squares[1][2], cubeState[5].squares[2][2]};
   std::array<FaceColor,3> bottomRotated{cubeState[3].squares[0][0], cubeState[3].squares[1][0], cubeState[3].squares[2][0]};
@@ -322,6 +381,7 @@ void Cube::li() {
 }
 
 void Cube::u() {
+  moveHistory.push_back("u");
   std::array<FaceColor,3> leftRotated = std::move(cubeState[1].squares[0]);
   std::array<FaceColor,3> backRotated = std::move(cubeState[5].squares[0]);
   std::array<FaceColor,3> rightRotated = std::move(cubeState[2].squares[0]);
@@ -336,6 +396,7 @@ void Cube::u() {
 }
 
 void Cube::ui() {
+  moveHistory.push_back("ui");
   std::array<FaceColor,3> leftRotated = std::move(cubeState[1].squares[0]);
   std::array<FaceColor,3> backRotated = std::move(cubeState[5].squares[0]);
   std::array<FaceColor,3> rightRotated = std::move(cubeState[2].squares[0]);
@@ -350,6 +411,7 @@ void Cube::ui() {
 }
 
 void Cube::d() {
+  moveHistory.push_back("d");
   std::array<FaceColor,3> leftRotated = std::move(cubeState[1].squares[2]);
   std::array<FaceColor,3> backRotated = std::move(cubeState[5].squares[2]);
   std::array<FaceColor,3> rightRotated = std::move(cubeState[2].squares[2]);
@@ -364,6 +426,7 @@ void Cube::d() {
 }
 
 void Cube::di() {
+  moveHistory.push_back("di");
   std::array<FaceColor,3> leftRotated = std::move(cubeState[1].squares[2]);
   std::array<FaceColor,3> backRotated = std::move(cubeState[5].squares[2]);
   std::array<FaceColor,3> rightRotated = std::move(cubeState[2].squares[2]);
@@ -378,6 +441,7 @@ void Cube::di() {
 }
 
 void Cube::b() {
+  moveHistory.push_back("b");
   std::array<FaceColor,3> topRotated = std::move(cubeState[4].squares[0]);
   std::array<FaceColor,3> leftRotated{cubeState[1].squares[0][0], cubeState[1].squares[1][0], cubeState[1].squares[2][0]};
   std::array<FaceColor,3> bottomRotated = std::move(cubeState[3].squares[2]);
@@ -396,6 +460,7 @@ void Cube::b() {
 }
 
 void Cube::bi() {
+  moveHistory.push_back("bi");
   std::array<FaceColor,3> topRotated = std::move(cubeState[4].squares[0]);
   std::array<FaceColor,3> leftRotated{cubeState[1].squares[0][0], cubeState[1].squares[1][0], cubeState[1].squares[2][0]};
   std::array<FaceColor,3> bottomRotated = std::move(cubeState[3].squares[2]);
