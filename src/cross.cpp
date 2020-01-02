@@ -5,7 +5,6 @@
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include <iostream>
-#include <unistd.h>
 
 Cross::Cross(Cube &cube) : Step(cube) {}
 
@@ -14,43 +13,10 @@ bool Cross::reachedGoal() {
 }
 
 void Cross::setupTargetLocations() {
-  auto leftFace = cube.getFaceAtOrientation(FaceOrientation::LE);
-  targets.insert({leftFace.squares[1][1], std::make_pair(1, 0)});
-  auto backFace = cube.getFaceAtOrientation(FaceOrientation::BA);
-  targets.insert({backFace.squares[1][1], std::make_pair(0, 1)});
-  auto rightFace = cube.getFaceAtOrientation(FaceOrientation::RI);
-  targets.insert({rightFace.squares[1][1], std::make_pair(1, 2)});
-  auto frontFace = cube.getFaceAtOrientation(FaceOrientation::FR);
-  targets.insert({frontFace.squares[1][1], std::make_pair(2, 1)});
-
-  // std::cout << "Orange piece target position: (" << targets.at(FaceColor::O).first << ", " <<  targets.at(FaceColor::O).second << ")" << std::endl;
-  // std::cout << "Blue piece target position: (" << targets.at(FaceColor::B).first << ", " <<  targets.at(FaceColor::B).second << ")" << std::endl;
-  // std::cout << "Red piece target position: (" << targets.at(FaceColor::R).first << ", " <<  targets.at(FaceColor::R).second << ")" << std::endl;
-  // std::cout << "Green piece target position: (" << targets.at(FaceColor::G).first << ", " <<  targets.at(FaceColor::G).second << ")" << std::endl;
-  // std::cout << std::endl;
-
-  // std::pair<int, int> target;
-  // for (auto face = cube.roBegin(); face != cube.roEnd(); ++face)
-  // {
-  //   for (int i = 0; i < face.squares.size(); i++) 
-  //   {
-  //     for (int j = 0; j < face.squares[i].size(); j++) 
-  //     {
-  //       if (face.squares[i][j] == FaceColor::W) 
-  //       {
-  //         if (
-  //             (i == 0 && j == 1) ||
-  //             (i == 1 && j == 0) ||
-  //             (i == 1 && j == 2) ||
-  //             (i == 2 && j == 1)
-  //            ) 
-  //         {
-  //           auto adjacentColor = getAdjacentFaceColor(orientation, i, j)
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
+  targets.insert({cube.getColorAtFaceAndLocation(FaceOrientation::LE, 1, 1), std::make_pair(1, 0)});
+  targets.insert({cube.getColorAtFaceAndLocation(FaceOrientation::BA, 1, 1), std::make_pair(0, 1)});
+  targets.insert({cube.getColorAtFaceAndLocation(FaceOrientation::RI, 1, 1), std::make_pair(1, 2)});
+  targets.insert({cube.getColorAtFaceAndLocation(FaceOrientation::FR, 1, 1), std::make_pair(2, 1)});
 }
 
 bool Cross::nextUnsolvedCrossPiece(TargetItem &unsolvedPiece) {
@@ -90,20 +56,11 @@ bool Cross::nextUnsolvedCrossPiece(TargetItem &unsolvedPiece) {
 
 void Cross::solveCross() {
   reorientWhiteFaceToTop();
-  //cube.printCube();
   setupTargetLocations();
   TargetItem unsolvedPiece;
   while (nextUnsolvedCrossPiece(unsolvedPiece)) {
-    //cube.printCube();
-    //std::cout << "First unsolved piece: i " << unsolvedPiece.i << " j " << unsolvedPiece.j << " face color " << EnumUtils::enum2Str::toStr(unsolvedPiece.color) << " face orientation " << EnumUtils::enum2Str::toStr(unsolvedPiece.orientation) << std::endl;
     repositionWhiteCrossPiece(unsolvedPiece);
-
-    //cube.printCube();
-    //usleep(1000000);
   }
-  std::cout << "!!!!SOLVED WHITE CROSS!!!!" << std::endl << std::endl;
-  //cube.printCube();
-  //auto faceColor = getAdjacentFaceColor(FaceOrientation::FR, 2, 1);
 }
 
 FaceColor Cross::getAdjacentFaceColor(FaceOrientation orientation, int i, int j) {
@@ -197,29 +154,6 @@ FaceColor Cross::getAdjacentFaceColor(FaceOrientation orientation, int i, int j)
   }
   return FaceColor::FC_ERR;
 }
-
-// void Cross::repositionWhiteCrossMidPiece(const CubeFace &face, int sj) {
-//   switch(face.getOrientation()) {
-//     case FaceOrientation::FR:
-//       if (sj == 0) {
-//         cube.l();
-//       } else {
-//         cube.ri();
-//       }
-
-//       break;
-//     case FaceOrientation::LE:
-//       break;
-//     case FaceOrientation::RI: 
-//       break;
-//     case FaceOrientation::BA:
-//       break;
-//     case FaceOrientation::DO:
-//       break;
-//     case FaceOrientation::UP:
-//       break;
-//   }
-// }
 
 void Cross::repositionTopWhitePiece(int i, int j) {
   if (i == 0 && j == 1) {
@@ -355,24 +289,10 @@ void Cross::repositionBottomInverseWhitePiece(FaceOrientation orientation) {
 }
 
 void Cross::repositionBottomWhitePiece(int i, int j, FaceColor targetFaceColor) {
-  // rotate cube until face with targetFaceColor is at FR
-  // std::cout << "Reposition bottom white piece" << std::endl;
-  // cube.printCube();
-  //cube.printCube();
-  // std::cout << "Current front color: " << EnumUtils::enum2Str::toStr(cube.getColorAtFaceAndLocation(FaceOrientation::FR, 1, 1)) << std::endl;
-
   while (cube.getColorAtFaceAndLocation(FaceOrientation::FR, 1, 1) != targetFaceColor) {
     cube.rotateCubeRight();
 
-    // auto leftFace = cube.getFaceAtOrientation(FaceOrientation::LE);
-    // targets.insert({leftFace.squares[1][1], std::make_pair(1, 0)});
-    // auto backFace = cube.getFaceAtOrientation(FaceOrientation::BA);
-    // targets.insert({backFace.squares[1][1], std::make_pair(0, 1)});
-    // auto rightFace = cube.getFaceAtOrientation(FaceOrientation::RI);
-    // targets.insert({rightFace.squares[1][1], std::make_pair(1, 2)});
-    // auto frontFace = cube.getFaceAtOrientation(FaceOrientation::FR);
-    // targets.insert({frontFace.squares[1][1], std::make_pair(2, 1)});
-
+    // targets need to be updated with whole face rotation
     auto tempG = targets.at(FaceColor::G);
     auto tempO = targets.at(FaceColor::O);
     auto tempB = targets.at(FaceColor::B);
@@ -382,13 +302,13 @@ void Cross::repositionBottomWhitePiece(int i, int j, FaceColor targetFaceColor) 
     targets[FaceColor::B] = tempO;
     targets[FaceColor::R] = tempB;
     targets[FaceColor::G] = tempR;
-    // std::cout << "Current front color: " << EnumUtils::enum2Str::toStr(cube.getColorAtFaceAndLocation(FaceOrientation::FR, 1, 1)) << std::endl;
   }
 
   while (cube.getColorAtFaceAndLocation(FaceOrientation::FR, 2, 1) != targetFaceColor ||
          cube.getColorAtFaceAndLocation(FaceOrientation::DO, 0, 1) != FaceColor::W) {
     cube.d();
   }
+
   cube.f();
   cube.f();
 }
@@ -424,7 +344,6 @@ void Cross::repositionWhiteCrossPiece(const TargetItem target) {
 
 void Cross::reorientWhiteFaceToTop() {
   auto whiteFaceOrientation = findWhiteCenter();
-  //spdlog::info("White center is on face <" + EnumUtils::enum2Str::toStr(whiteFaceOrientation) + ">.");
   switch(whiteFaceOrientation) {
     case FaceOrientation::FR:
       cube.rotateCubeUp();

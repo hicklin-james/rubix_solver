@@ -1,74 +1,105 @@
-// local headers
+/** Local headers **/
 #include "cube.h"
-#include "cube_face.h"
-#include "util.h"
+#include "face_parser.h"
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
-#include "face_parser.h"
-// system headers
-#include <iostream>
+
+/** System headers **/
 #include <iomanip>
-#include <string>  
 #include <iostream>
 #include <sstream>
 
+// ------------------------------------------------------------------------- //
 Cube::Cube(std::array<CubeFace, 6> faces) : cubeState(faces) {}
 
-std::array<CubeFace, 6>::const_iterator Cube::roBegin() {
+// ------------------------------------------------------------------------- //
+std::array<CubeFace, 6>::const_iterator Cube::roBegin() const 
+{
   return cubeState.begin();
 }
 
-std::array<CubeFace, 6>::const_iterator Cube::roEnd() {
+// ------------------------------------------------------------------------- //
+std::array<CubeFace, 6>::const_iterator Cube::roEnd() const 
+{
   return cubeState.end();
 }
 
-const CubeFace Cube::getFaceAtOrientation(FaceOrientation orientation) {
-  switch (orientation) {
-  case FaceOrientation::FR:
-    return cubeState[0];
-    break;
-  case FaceOrientation::LE:
-    return cubeState[1];
-    break;
-  case FaceOrientation::RI: 
-    return cubeState[2];
-    break;
-  case FaceOrientation::BA:
-    return cubeState[5];
-    break;
-  case FaceOrientation::DO:
-    return cubeState[3];
-    break;
-  case FaceOrientation::UP:
-    return cubeState[4];
-    break; 
-  default:
-    CubeFace err_face;
-    FaceParser::parseFaceFromString(err_face, "W,W,W,W,W,W,W,W,W", FaceOrientation::FO_ERR);
-    return err_face;
+// ------------------------------------------------------------------------- //
+const CubeFace Cube::getFaceAtOrientation(FaceOrientation orientation) 
+{
+  switch (orientation) 
+  {
+    case FaceOrientation::FR: 
+    {
+      return cubeState[0];
+      break;
+    }
+    case FaceOrientation::LE: 
+    {
+      return cubeState[1];
+      break;
+    }
+    case FaceOrientation::RI: 
+    {
+      return cubeState[2];
+      break;
+    }
+    case FaceOrientation::BA: 
+    {
+      return cubeState[5];
+      break;
+    }
+    case FaceOrientation::DO: 
+    {
+      return cubeState[3];
+      break;
+    }
+    case FaceOrientation::UP: 
+    {
+      return cubeState[4];
+      break; 
+    }
+    default: 
+    {
+      CubeFace err_face;
+      FaceParser::parseFaceFromString(err_face, 
+                                      "W,W,W,W,W,W,W,W,W", 
+                                      FaceOrientation::FO_ERR);
+      return err_face;
+    }
   }
 }
 
-FaceColor Cube::getColorAtFaceAndLocation(FaceOrientation orientation, int i, int j) {
+// ------------------------------------------------------------------------- //
+FaceColor Cube::getColorAtFaceAndLocation(FaceOrientation orientation, 
+                                          int i, int j) 
+{
   auto face = getFaceAtOrientation(orientation);
-  if (face.getOrientation() != FaceOrientation::FO_ERR) {
+  if (face.getOrientation() != FaceOrientation::FO_ERR) 
+  {
     return face.squares[i][j];
-  } else {
+  } 
+  else 
+  {
     return FaceColor::FC_ERR;
   }
 }
 
-void Cube::printMoveHistory() const {
+// ------------------------------------------------------------------------- //
+void Cube::printMoveHistory() const 
+{
   std::string historyString = "";
-  for (auto move : moveHistory) {
+  for (auto move : moveHistory) 
+  {
      historyString += move + ",";
   }
   historyString.pop_back();
   std::cout << "Moves required: " << historyString << std::endl;
-
 }
 
-void Cube::printCube() const {
+// ------------------------------------------------------------------------- //
+void Cube::printCube() const 
+{
   std::ostringstream stringBuf;
   stringBuf << "Current cube state:" << std::endl;
   stringBuf << std::left << std::setw(8) << "";
@@ -118,7 +149,9 @@ void Cube::printCube() const {
   spdlog::info(stringBuf.str());
 }
 
-void Cube::rotateCubeLeft() {
+// ------------------------------------------------------------------------- //
+void Cube::rotateCubeLeft() 
+{
   moveHistory.push_back("RLE");
   const auto tempF = std::move(cubeState[0]);
   const auto tempL = std::move(cubeState[1]);
@@ -137,7 +170,9 @@ void Cube::rotateCubeLeft() {
   cubeState[3].rotateFaceAntiClockwise();
 }
 
-void Cube::rotateCubeRight() {
+// ------------------------------------------------------------------------- //
+void Cube::rotateCubeRight() 
+{
   moveHistory.push_back("RRI");
   const auto tempF = std::move(cubeState[0]);
   const auto tempL = std::move(cubeState[1]);
@@ -156,7 +191,9 @@ void Cube::rotateCubeRight() {
   cubeState[3].rotateFaceClockwise();
 }
 
-void Cube::rotateCubeUp() {
+// ------------------------------------------------------------------------- //
+void Cube::rotateCubeUp() 
+{
   moveHistory.push_back("RUP");
   const auto tempF = std::move(cubeState[0]);
   const auto tempU = std::move(cubeState[4]);
@@ -179,7 +216,9 @@ void Cube::rotateCubeUp() {
   cubeState[2].rotateFaceClockwise();
 }
 
-void Cube::rotateCubeDown() {
+// ------------------------------------------------------------------------- //
+void Cube::rotateCubeDown() 
+{
   moveHistory.push_back("RDO");
   const auto tempF = std::move(cubeState[0]);
   const auto tempU = std::move(cubeState[4]);
@@ -202,7 +241,9 @@ void Cube::rotateCubeDown() {
   cubeState[2].rotateFaceAntiClockwise();
 }
 
-void Cube::rotateCubeClockwise() {
+// ------------------------------------------------------------------------- //
+void Cube::rotateCubeClockwise() 
+{
   moveHistory.push_back("RCW");
   const auto tempL = std::move(cubeState[1]);
   const auto tempU = std::move(cubeState[4]);
@@ -226,7 +267,9 @@ void Cube::rotateCubeClockwise() {
   cubeState[5].rotateFaceAntiClockwise();
 }
 
-void Cube::rotateCubeAntiClockwise() {
+// ------------------------------------------------------------------------- //
+void Cube::rotateCubeAntiClockwise() 
+{
   moveHistory.push_back("RAC");
   const auto tempL = std::move(cubeState[1]);
   const auto tempU = std::move(cubeState[4]);
@@ -250,12 +293,18 @@ void Cube::rotateCubeAntiClockwise() {
   cubeState[5].rotateFaceClockwise();
 }
 
-void Cube::f() {
+// ------------------------------------------------------------------------- //
+void Cube::f() 
+{
   moveHistory.push_back("f");
   std::array<FaceColor,3> topRotated = std::move(cubeState[4].squares[2]);
-  std::array<FaceColor,3> leftRotated{cubeState[1].squares[2][2], cubeState[1].squares[1][2], cubeState[1].squares[0][2]};
+  std::array<FaceColor,3> leftRotated{cubeState[1].squares[2][2], 
+                                      cubeState[1].squares[1][2], 
+                                      cubeState[1].squares[0][2]};
   std::array<FaceColor,3> bottomRotated = std::move(cubeState[3].squares[0]);
-  std::array<FaceColor,3> rightRotated{cubeState[2].squares[2][0], cubeState[2].squares[1][0], cubeState[2].squares[0][0]};
+  std::array<FaceColor,3> rightRotated{cubeState[2].squares[2][0], 
+                                       cubeState[2].squares[1][0], 
+                                       cubeState[2].squares[0][0]};
 
   cubeState[4].squares[2] = std::move(leftRotated);
   cubeState[2].squares[0][0] = topRotated[0];
@@ -269,12 +318,18 @@ void Cube::f() {
   cubeState[0].rotateFaceClockwise();
 }
 
-void Cube::fi() {
+// ------------------------------------------------------------------------- //
+void Cube::fi() 
+{
   moveHistory.push_back("fi");
   std::array<FaceColor,3> topRotated = std::move(cubeState[4].squares[2]);
-  std::array<FaceColor,3> leftRotated{cubeState[1].squares[0][2], cubeState[1].squares[1][2], cubeState[1].squares[2][2]};
+  std::array<FaceColor,3> leftRotated{cubeState[1].squares[0][2], 
+                                      cubeState[1].squares[1][2], 
+                                      cubeState[1].squares[2][2]};
   std::array<FaceColor,3> bottomRotated = std::move(cubeState[3].squares[0]);
-  std::array<FaceColor,3> rightRotated{cubeState[2].squares[0][0], cubeState[2].squares[1][0], cubeState[2].squares[2][0]};
+  std::array<FaceColor,3> rightRotated{cubeState[2].squares[0][0], 
+                                       cubeState[2].squares[1][0], 
+                                       cubeState[2].squares[2][0]};
 
   cubeState[1].squares[0][2] = topRotated[2];
   cubeState[1].squares[1][2] = topRotated[1];
@@ -288,12 +343,22 @@ void Cube::fi() {
   cubeState[0].rotateFaceAntiClockwise();
 }
 
-void Cube::r() {
+// ------------------------------------------------------------------------- //
+void Cube::r() 
+{
   moveHistory.push_back("r");
-  std::array<FaceColor,3> topRotated{cubeState[4].squares[0][2], cubeState[4].squares[1][2], cubeState[4].squares[2][2]};
-  std::array<FaceColor,3> backRotated{cubeState[5].squares[0][0], cubeState[5].squares[1][0], cubeState[5].squares[2][0]};
-  std::array<FaceColor,3> bottomRotated{cubeState[3].squares[0][2], cubeState[3].squares[1][2], cubeState[3].squares[2][2]};
-  std::array<FaceColor,3> frontRotated{cubeState[0].squares[0][2], cubeState[0].squares[1][2], cubeState[0].squares[2][2]};
+  std::array<FaceColor,3> topRotated{cubeState[4].squares[0][2], 
+                                     cubeState[4].squares[1][2], 
+                                     cubeState[4].squares[2][2]};
+  std::array<FaceColor,3> backRotated{cubeState[5].squares[0][0], 
+                                      cubeState[5].squares[1][0], 
+                                      cubeState[5].squares[2][0]};
+  std::array<FaceColor,3> bottomRotated{cubeState[3].squares[0][2], 
+                                        cubeState[3].squares[1][2], 
+                                        cubeState[3].squares[2][2]};
+  std::array<FaceColor,3> frontRotated{cubeState[0].squares[0][2], 
+                                       cubeState[0].squares[1][2], 
+                                       cubeState[0].squares[2][2]};
 
   cubeState[5].squares[0][0] = topRotated[2];
   cubeState[5].squares[1][0] = topRotated[1];
@@ -311,12 +376,22 @@ void Cube::r() {
   cubeState[2].rotateFaceClockwise();
 }
 
-void Cube::ri() {
+// ------------------------------------------------------------------------- //
+void Cube::ri() 
+{
   moveHistory.push_back("ri");
-  std::array<FaceColor,3> topRotated{cubeState[4].squares[0][2], cubeState[4].squares[1][2], cubeState[4].squares[2][2]};
-  std::array<FaceColor,3> backRotated{cubeState[5].squares[0][0], cubeState[5].squares[1][0], cubeState[5].squares[2][0]};
-  std::array<FaceColor,3> bottomRotated{cubeState[3].squares[0][2], cubeState[3].squares[1][2], cubeState[3].squares[2][2]};
-  std::array<FaceColor,3> frontRotated{cubeState[0].squares[0][2], cubeState[0].squares[1][2], cubeState[0].squares[2][2]};
+  std::array<FaceColor,3> topRotated{cubeState[4].squares[0][2], 
+                                     cubeState[4].squares[1][2], 
+                                     cubeState[4].squares[2][2]};
+  std::array<FaceColor,3> backRotated{cubeState[5].squares[0][0], 
+                                      cubeState[5].squares[1][0], 
+                                      cubeState[5].squares[2][0]};
+  std::array<FaceColor,3> bottomRotated{cubeState[3].squares[0][2], 
+                                        cubeState[3].squares[1][2], 
+                                        cubeState[3].squares[2][2]};
+  std::array<FaceColor,3> frontRotated{cubeState[0].squares[0][2], 
+                                       cubeState[0].squares[1][2], 
+                                       cubeState[0].squares[2][2]};
 
   cubeState[0].squares[0][2] = topRotated[0];
   cubeState[0].squares[1][2] = topRotated[1];
@@ -334,12 +409,22 @@ void Cube::ri() {
   cubeState[2].rotateFaceAntiClockwise();
 }
 
-void Cube::l() {
+// ------------------------------------------------------------------------- //
+void Cube::l() 
+{
   moveHistory.push_back("l");
-  std::array<FaceColor,3> topRotated{cubeState[4].squares[0][0], cubeState[4].squares[1][0], cubeState[4].squares[2][0]};
-  std::array<FaceColor,3> backRotated{cubeState[5].squares[0][2], cubeState[5].squares[1][2], cubeState[5].squares[2][2]};
-  std::array<FaceColor,3> bottomRotated{cubeState[3].squares[0][0], cubeState[3].squares[1][0], cubeState[3].squares[2][0]};
-  std::array<FaceColor,3> frontRotated{cubeState[0].squares[0][0], cubeState[0].squares[1][0], cubeState[0].squares[2][0]};
+  std::array<FaceColor,3> topRotated{cubeState[4].squares[0][0], 
+                                     cubeState[4].squares[1][0], 
+                                     cubeState[4].squares[2][0]};
+  std::array<FaceColor,3> backRotated{cubeState[5].squares[0][2], 
+                                      cubeState[5].squares[1][2], 
+                                      cubeState[5].squares[2][2]};
+  std::array<FaceColor,3> bottomRotated{cubeState[3].squares[0][0], 
+                                        cubeState[3].squares[1][0], 
+                                        cubeState[3].squares[2][0]};
+  std::array<FaceColor,3> frontRotated{cubeState[0].squares[0][0], 
+                                       cubeState[0].squares[1][0], 
+                                       cubeState[0].squares[2][0]};
 
   cubeState[0].squares[0][0] = topRotated[0];
   cubeState[0].squares[1][0] = topRotated[1];
@@ -357,12 +442,22 @@ void Cube::l() {
   cubeState[1].rotateFaceClockwise();
 }
 
-void Cube::li() {
+// ------------------------------------------------------------------------- //
+void Cube::li() 
+{
   moveHistory.push_back("li");
-  std::array<FaceColor,3> topRotated{cubeState[4].squares[0][0], cubeState[4].squares[1][0], cubeState[4].squares[2][0]};
-  std::array<FaceColor,3> backRotated{cubeState[5].squares[0][2], cubeState[5].squares[1][2], cubeState[5].squares[2][2]};
-  std::array<FaceColor,3> bottomRotated{cubeState[3].squares[0][0], cubeState[3].squares[1][0], cubeState[3].squares[2][0]};
-  std::array<FaceColor,3> frontRotated{cubeState[0].squares[0][0], cubeState[0].squares[1][0], cubeState[0].squares[2][0]};  
+  std::array<FaceColor,3> topRotated{cubeState[4].squares[0][0], 
+                                     cubeState[4].squares[1][0], 
+                                     cubeState[4].squares[2][0]};
+  std::array<FaceColor,3> backRotated{cubeState[5].squares[0][2], 
+                                      cubeState[5].squares[1][2], 
+                                      cubeState[5].squares[2][2]};
+  std::array<FaceColor,3> bottomRotated{cubeState[3].squares[0][0], 
+                                        cubeState[3].squares[1][0], 
+                                        cubeState[3].squares[2][0]};
+  std::array<FaceColor,3> frontRotated{cubeState[0].squares[0][0], 
+                                       cubeState[0].squares[1][0], 
+                                       cubeState[0].squares[2][0]};  
 
   cubeState[4].squares[0][0] = frontRotated[0];
   cubeState[4].squares[1][0] = frontRotated[1];
@@ -380,7 +475,9 @@ void Cube::li() {
   cubeState[1].rotateFaceAntiClockwise();
 }
 
-void Cube::u() {
+// ------------------------------------------------------------------------- //
+void Cube::u() 
+{
   moveHistory.push_back("u");
   std::array<FaceColor,3> leftRotated = std::move(cubeState[1].squares[0]);
   std::array<FaceColor,3> backRotated = std::move(cubeState[5].squares[0]);
@@ -395,7 +492,9 @@ void Cube::u() {
   cubeState[4].rotateFaceClockwise();
 }
 
-void Cube::ui() {
+// ------------------------------------------------------------------------- //
+void Cube::ui() 
+{
   moveHistory.push_back("ui");
   std::array<FaceColor,3> leftRotated = std::move(cubeState[1].squares[0]);
   std::array<FaceColor,3> backRotated = std::move(cubeState[5].squares[0]);
@@ -410,7 +509,9 @@ void Cube::ui() {
   cubeState[4].rotateFaceAntiClockwise();
 }
 
-void Cube::d() {
+// ------------------------------------------------------------------------- //
+void Cube::d() 
+{
   moveHistory.push_back("d");
   std::array<FaceColor,3> leftRotated = std::move(cubeState[1].squares[2]);
   std::array<FaceColor,3> backRotated = std::move(cubeState[5].squares[2]);
@@ -425,7 +526,9 @@ void Cube::d() {
   cubeState[3].rotateFaceClockwise();
 }
 
-void Cube::di() {
+// ------------------------------------------------------------------------- //
+void Cube::di() 
+{
   moveHistory.push_back("di");
   std::array<FaceColor,3> leftRotated = std::move(cubeState[1].squares[2]);
   std::array<FaceColor,3> backRotated = std::move(cubeState[5].squares[2]);
@@ -440,12 +543,18 @@ void Cube::di() {
   cubeState[3].rotateFaceAntiClockwise();
 }
 
-void Cube::b() {
+// ------------------------------------------------------------------------- //
+void Cube::b() 
+{
   moveHistory.push_back("b");
   std::array<FaceColor,3> topRotated = std::move(cubeState[4].squares[0]);
-  std::array<FaceColor,3> leftRotated{cubeState[1].squares[0][0], cubeState[1].squares[1][0], cubeState[1].squares[2][0]};
+  std::array<FaceColor,3> leftRotated{cubeState[1].squares[0][0], 
+                                      cubeState[1].squares[1][0], 
+                                      cubeState[1].squares[2][0]};
   std::array<FaceColor,3> bottomRotated = std::move(cubeState[3].squares[2]);
-  std::array<FaceColor,3> rightRotated{cubeState[2].squares[0][2], cubeState[2].squares[1][2], cubeState[2].squares[2][2]};
+  std::array<FaceColor,3> rightRotated{cubeState[2].squares[0][2], 
+                                       cubeState[2].squares[1][2], 
+                                       cubeState[2].squares[2][2]};
 
   cubeState[4].squares[0] = std::move(rightRotated);
   cubeState[1].squares[0][0] = topRotated[2];
@@ -459,12 +568,18 @@ void Cube::b() {
   cubeState[5].rotateFaceClockwise();
 }
 
-void Cube::bi() {
+// ------------------------------------------------------------------------- //
+void Cube::bi() 
+{
   moveHistory.push_back("bi");
   std::array<FaceColor,3> topRotated = std::move(cubeState[4].squares[0]);
-  std::array<FaceColor,3> leftRotated{cubeState[1].squares[0][0], cubeState[1].squares[1][0], cubeState[1].squares[2][0]};
+  std::array<FaceColor,3> leftRotated{cubeState[1].squares[0][0], 
+                                      cubeState[1].squares[1][0], 
+                                      cubeState[1].squares[2][0]};
   std::array<FaceColor,3> bottomRotated = std::move(cubeState[3].squares[2]);
-  std::array<FaceColor,3> rightRotated{cubeState[2].squares[0][2], cubeState[2].squares[1][2], cubeState[2].squares[2][2]};
+  std::array<FaceColor,3> rightRotated{cubeState[2].squares[0][2], 
+                                       cubeState[2].squares[1][2], 
+                                       cubeState[2].squares[2][2]};
 
   cubeState[4].squares[0][0] = leftRotated[2];
   cubeState[4].squares[0][1] = leftRotated[1];
