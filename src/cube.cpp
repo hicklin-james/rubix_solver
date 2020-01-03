@@ -1,10 +1,12 @@
-/** Local headers **/
+/** Class header */
 #include "cube.h"
+
+/** Local headers */
 #include "face_parser.h"
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
 
-/** System headers **/
+/** System headers */
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -61,9 +63,7 @@ const CubeFace Cube::getFaceAtOrientation(FaceOrientation orientation)
     }
     default: 
     {
-      CubeFace err_face;
-      FaceParser::parseFaceFromString(err_face, 
-                                      "W,W,W,W,W,W,W,W,W", 
+      CubeFace err_face = FaceParser::parseFaceFromString("W,W,W,W,W,W,W,W,W", 
                                       FaceOrientation::FO_ERR);
       return err_face;
     }
@@ -83,6 +83,99 @@ FaceColor Cube::getColorAtFaceAndLocation(FaceOrientation orientation,
   {
     return FaceColor::FC_ERR;
   }
+}
+
+// ------------------------------------------------------------------------- //
+FaceColor Cube::getAdjacentFaceColor(FaceOrientation orientation, int i, int j) {
+  switch(orientation) {
+    case FaceOrientation::FR:
+      if (i == 0 && j == 1) {
+        return getColorAtFaceAndLocation(FaceOrientation::UP, 2, 1);
+      }
+      else if (i == 1 && j == 0) {
+        return getColorAtFaceAndLocation(FaceOrientation::LE, 1, 2);
+      }
+      else if (i == 1 && j == 2) {
+        return getColorAtFaceAndLocation(FaceOrientation::RI, 1, 0);
+      }
+      else if (i == 2 && j == 1) {
+        return getColorAtFaceAndLocation(FaceOrientation::DO, 0, 1);
+      }
+      break;
+    case FaceOrientation::LE:
+      if (i == 0 && j == 1) {
+        return getColorAtFaceAndLocation(FaceOrientation::UP, 1, 0);
+      }
+      else if (i == 1 && j == 0) {
+        return getColorAtFaceAndLocation(FaceOrientation::BA, 1, 2);
+      }
+      else if (i == 1 && j == 2) {
+        return getColorAtFaceAndLocation(FaceOrientation::FR, 1, 0);
+      }
+      else if (i == 2 && j == 1) {
+        return getColorAtFaceAndLocation(FaceOrientation::DO, 1, 0);
+      }
+      break;
+    case FaceOrientation::RI:
+      if (i == 0 && j == 1) {
+        return getColorAtFaceAndLocation(FaceOrientation::UP, 1, 2);
+      }
+      else if (i == 1 && j == 0) {
+        return getColorAtFaceAndLocation(FaceOrientation::FR, 1, 2);
+      }
+      else if (i == 1 && j == 2) {
+        return getColorAtFaceAndLocation(FaceOrientation::BA, 1, 0);
+      }
+      else if (i == 2 && j == 1) {
+        return getColorAtFaceAndLocation(FaceOrientation::DO, 1, 2);
+      }
+      break;
+    case FaceOrientation::BA:
+      if (i == 0 && j == 1) {
+        return getColorAtFaceAndLocation(FaceOrientation::UP, 0, 1);
+      }
+      else if (i == 1 && j == 0) {
+        return getColorAtFaceAndLocation(FaceOrientation::RI, 1, 2);
+      }
+      else if (i == 1 && j == 2) {
+        return getColorAtFaceAndLocation(FaceOrientation::LE, 1, 0);
+      }
+      else if (i == 2 && j == 1) {
+        return getColorAtFaceAndLocation(FaceOrientation::DO, 2, 1);
+      }
+      break;
+    case FaceOrientation::DO:
+      if (i == 0 && j == 1) {
+        return getColorAtFaceAndLocation(FaceOrientation::FR, 2, 1);
+      }
+      else if (i == 1 && j == 0) {
+        return getColorAtFaceAndLocation(FaceOrientation::LE, 2, 1);
+      }
+      else if (i == 1 && j == 2) {
+        return getColorAtFaceAndLocation(FaceOrientation::RI, 2, 1);
+      }
+      else if (i == 2 && j == 1) {
+        return getColorAtFaceAndLocation(FaceOrientation::BA, 2, 1);
+      }
+      break;
+    case FaceOrientation::UP:
+      if (i == 0 && j == 1) {
+        return getColorAtFaceAndLocation(FaceOrientation::BA, 0, 1);
+      }
+      else if (i == 1 && j == 0) {
+        return getColorAtFaceAndLocation(FaceOrientation::LE, 0, 1);
+      }
+      else if (i == 1 && j == 2) {
+        return getColorAtFaceAndLocation(FaceOrientation::RI, 0, 1);
+      }
+      else if (i == 2 && j == 1) {
+        return getColorAtFaceAndLocation(FaceOrientation::FR, 0, 1);
+      }
+      break; 
+    default:
+      break;
+  }
+  return FaceColor::FC_ERR;
 }
 
 // ------------------------------------------------------------------------- //

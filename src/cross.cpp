@@ -1,25 +1,35 @@
+/** Class header */
 #include "cross.h"
-#include "util.h"
+
+/** Local headers */
 #include "cube_face.h"
 #include "enum2Str.hpp"
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
+#include "util.h"
+
+/** System headers */
 #include <iostream>
 
+// ------------------------------------------------------------------------- //
 Cross::Cross(Cube &cube) : Step(cube) {}
 
-bool Cross::reachedGoal() {
-  return false;
+// ------------------------------------------------------------------------- //
+void Cross::setupTargetLocations() 
+{
+  targets.insert({cube.getColorAtFaceAndLocation(FaceOrientation::LE, 1, 1),
+                  std::make_pair(1, 0)});
+  targets.insert({cube.getColorAtFaceAndLocation(FaceOrientation::BA, 1, 1),
+                  std::make_pair(0, 1)});
+  targets.insert({cube.getColorAtFaceAndLocation(FaceOrientation::RI, 1, 1),
+                  std::make_pair(1, 2)});
+  targets.insert({cube.getColorAtFaceAndLocation(FaceOrientation::FR, 1, 1),
+                  std::make_pair(2, 1)});
 }
 
-void Cross::setupTargetLocations() {
-  targets.insert({cube.getColorAtFaceAndLocation(FaceOrientation::LE, 1, 1), std::make_pair(1, 0)});
-  targets.insert({cube.getColorAtFaceAndLocation(FaceOrientation::BA, 1, 1), std::make_pair(0, 1)});
-  targets.insert({cube.getColorAtFaceAndLocation(FaceOrientation::RI, 1, 1), std::make_pair(1, 2)});
-  targets.insert({cube.getColorAtFaceAndLocation(FaceOrientation::FR, 1, 1), std::make_pair(2, 1)});
-}
-
-bool Cross::nextUnsolvedCrossPiece(TargetItem &unsolvedPiece) {
+// ------------------------------------------------------------------------- //
+bool Cross::nextUnsolvedCrossPiece(TargetItem &unsolvedPiece)
+{
   for (auto face = cube.roBegin(); face != cube.roEnd(); ++face)
   {
     for (int i = 0; i < face->squares.size(); i++) 
@@ -35,14 +45,18 @@ bool Cross::nextUnsolvedCrossPiece(TargetItem &unsolvedPiece) {
               (i == 2 && j == 1)
              ) 
           {
-            auto adjacentColor = getAdjacentFaceColor(face->getOrientation(), i, j);
-            auto target = targets.at(adjacentColor);
-            if (i == target.first && j == target.second && face->getOrientation() == FaceOrientation::UP) {
+            auto adjColor = cube.getAdjacentFaceColor(face->getOrientation(), 
+                                                      i, j);
+            auto target = targets.at(adjColor);
+            if (i == target.first &&
+                j == target.second &&
+                face->getOrientation() == FaceOrientation::UP) 
+            {
               continue;
             }
             unsolvedPiece.i = i;
             unsolvedPiece.j = j;
-            unsolvedPiece.color = adjacentColor;
+            unsolvedPiece.color = adjColor;
             unsolvedPiece.orientation = face->getOrientation();
             unsolvedPiece.targetLocation = target;
             return true;
@@ -54,211 +68,167 @@ bool Cross::nextUnsolvedCrossPiece(TargetItem &unsolvedPiece) {
   return false;
 }
 
-void Cross::solveCross() {
+// ------------------------------------------------------------------------- //
+void Cross::solveCross()
+{
   reorientWhiteFaceToTop();
   setupTargetLocations();
   TargetItem unsolvedPiece;
-  while (nextUnsolvedCrossPiece(unsolvedPiece)) {
+  while (nextUnsolvedCrossPiece(unsolvedPiece))
+  {
     repositionWhiteCrossPiece(unsolvedPiece);
   }
 }
 
-FaceColor Cross::getAdjacentFaceColor(FaceOrientation orientation, int i, int j) {
-  switch(orientation) {
-    case FaceOrientation::FR:
-      if (i == 0 && j == 1) {
-        return cube.getColorAtFaceAndLocation(FaceOrientation::UP, 2, 1);
-      }
-      else if (i == 1 && j == 0) {
-        return cube.getColorAtFaceAndLocation(FaceOrientation::LE, 1, 2);
-      }
-      else if (i == 1 && j == 2) {
-        return cube.getColorAtFaceAndLocation(FaceOrientation::RI, 1, 0);
-      }
-      else if (i == 2 && j == 1) {
-        return cube.getColorAtFaceAndLocation(FaceOrientation::DO, 0, 1);
-      }
-      break;
-    case FaceOrientation::LE:
-      if (i == 0 && j == 1) {
-        return cube.getColorAtFaceAndLocation(FaceOrientation::UP, 1, 0);
-      }
-      else if (i == 1 && j == 0) {
-        return cube.getColorAtFaceAndLocation(FaceOrientation::BA, 1, 2);
-      }
-      else if (i == 1 && j == 2) {
-        return cube.getColorAtFaceAndLocation(FaceOrientation::FR, 1, 0);
-      }
-      else if (i == 2 && j == 1) {
-        return cube.getColorAtFaceAndLocation(FaceOrientation::DO, 1, 0);
-      }
-      break;
-    case FaceOrientation::RI:
-      if (i == 0 && j == 1) {
-        return cube.getColorAtFaceAndLocation(FaceOrientation::UP, 1, 2);
-      }
-      else if (i == 1 && j == 0) {
-        return cube.getColorAtFaceAndLocation(FaceOrientation::FR, 1, 2);
-      }
-      else if (i == 1 && j == 2) {
-        return cube.getColorAtFaceAndLocation(FaceOrientation::BA, 1, 0);
-      }
-      else if (i == 2 && j == 1) {
-        return cube.getColorAtFaceAndLocation(FaceOrientation::DO, 1, 2);
-      }
-      break;
-    case FaceOrientation::BA:
-      if (i == 0 && j == 1) {
-        return cube.getColorAtFaceAndLocation(FaceOrientation::UP, 0, 1);
-      }
-      else if (i == 1 && j == 0) {
-        return cube.getColorAtFaceAndLocation(FaceOrientation::RI, 1, 2);
-      }
-      else if (i == 1 && j == 2) {
-        return cube.getColorAtFaceAndLocation(FaceOrientation::LE, 1, 0);
-      }
-      else if (i == 2 && j == 1) {
-        return cube.getColorAtFaceAndLocation(FaceOrientation::DO, 2, 1);
-      }
-      break;
-    case FaceOrientation::DO:
-      if (i == 0 && j == 1) {
-        return cube.getColorAtFaceAndLocation(FaceOrientation::FR, 2, 1);
-      }
-      else if (i == 1 && j == 0) {
-        return cube.getColorAtFaceAndLocation(FaceOrientation::LE, 2, 1);
-      }
-      else if (i == 1 && j == 2) {
-        return cube.getColorAtFaceAndLocation(FaceOrientation::RI, 2, 1);
-      }
-      else if (i == 2 && j == 1) {
-        return cube.getColorAtFaceAndLocation(FaceOrientation::BA, 2, 1);
-      }
-      break;
-    case FaceOrientation::UP:
-      if (i == 0 && j == 1) {
-        return cube.getColorAtFaceAndLocation(FaceOrientation::BA, 0, 1);
-      }
-      else if (i == 1 && j == 0) {
-        return cube.getColorAtFaceAndLocation(FaceOrientation::LE, 0, 1);
-      }
-      else if (i == 1 && j == 2) {
-        return cube.getColorAtFaceAndLocation(FaceOrientation::RI, 0, 1);
-      }
-      else if (i == 2 && j == 1) {
-        return cube.getColorAtFaceAndLocation(FaceOrientation::FR, 0, 1);
-      }
-      break; 
-    default:
-      break;
+// ------------------------------------------------------------------------- //
+void Cross::repositionTopWhitePiece(int i, int j)
+{
+  if (i == 0 && j == 1)
+  {
+    cube.b();
+    cube.b();
   }
-  return FaceColor::FC_ERR;
-}
-
-void Cross::repositionTopWhitePiece(int i, int j) {
-  if (i == 0 && j == 1) {
-    cube.b();
-    cube.b();
-  } else if (i == 1 && j == 0) {
+  else if (i == 1 && j == 0)
+  {
     cube.l();
     cube.l();
-  } else if (i == 1 && j == 2) {
+  }
+  else if (i == 1 && j == 2)
+  {
     cube.r();
     cube.r();
-  } else if (i == 2 && j == 1) {
+  }
+  else if (i == 2 && j == 1)
+  {
     cube.f();
     cube.f();
   }
 }
 
-void Cross::repositionTopInverseWhitePiece(FaceOrientation orientation) {
-  switch(orientation) {
+// ------------------------------------------------------------------------- //
+void Cross::repositionTopInverseWhitePiece(FaceOrientation orientation)
+{
+  switch(orientation)
+  {
     case FaceOrientation::RI:
+    {
       cube.r();
       cube.bi();
       cube.di();
       cube.r();
       break;
+    }
     case FaceOrientation::FR:
+    {
       cube.f();
       cube.ri();
       cube.di();
       cube.r(); 
       break;
+    }
     case FaceOrientation::LE:
+    {
       cube.li();
       cube.b();
       cube.di();
       cube.bi();
       break;
+    }
     case FaceOrientation::BA:
+    {
       cube.b();
       cube.li();
       cube.di();
       cube.l();
       break;
+    }
     default:
+    {
       return;
+    }
   }
 }
 
-void Cross::repositionMiddleWhitePiece(FaceOrientation orientation, int j) {
-  switch(orientation) {
+// ------------------------------------------------------------------------- //
+void Cross::repositionMiddleWhitePiece(FaceOrientation orientation, int j)
+{
+  switch(orientation)
+  {
     case FaceOrientation::RI:
-      if (j == 0) {
+    {
+      if (j == 0)
+      {
         cube.f();
         cube.d();
         cube.fi();
       }
-      else {
+      else
+      {
         cube.bi();
         cube.d();
         cube.b();
       }
       break;
+    }
     case FaceOrientation::FR:
-      if (j == 0) {
+    {
+      if (j == 0)
+      {
         cube.l();
         cube.d();
         cube.li();
       }
-      else {
+      else
+      {
         cube.ri();
         cube.d();
         cube.r();
       }
       break;
+    }
     case FaceOrientation::LE:
-      if (j == 0) {
+    {
+      if (j == 0)
+      {
         cube.b();
         cube.d();
         cube.bi();
       }
-      else {
+      else
+      {
         cube.fi();
         cube.d();
         cube.f();
       }
       break;
+    }
     case FaceOrientation::BA:
-      if (j == 0) {
+    {
+      if (j == 0)
+      {
         cube.r();
         cube.d();
         cube.ri();
       }
-      else {
+      else
+      {
         cube.li();
         cube.d();
         cube.l();
       }
       break;
+    }
     default:
+    {
       return;
+    }
   }
 }
 
-void Cross::repositionBottomInverseWhitePiece(FaceOrientation orientation) {
-  switch(orientation) {
+void Cross::repositionBottomInverseWhitePiece(FaceOrientation orientation)
+{
+  switch(orientation)
+  {
     case FaceOrientation::RI:
       cube.r();
       cube.f();
@@ -288,8 +258,11 @@ void Cross::repositionBottomInverseWhitePiece(FaceOrientation orientation) {
   }
 }
 
-void Cross::repositionBottomWhitePiece(int i, int j, FaceColor targetFaceColor) {
-  while (cube.getColorAtFaceAndLocation(FaceOrientation::FR, 1, 1) != targetFaceColor) {
+// ------------------------------------------------------------------------- //
+void Cross::repositionBottomWhitePiece(int i, int j, FaceColor targetFaceColor)
+{
+  while (cube.getColorAtFaceAndLocation(FaceOrientation::FR, 1, 1) != targetFaceColor) 
+  {
     cube.rotateCubeRight();
 
     // targets need to be updated with whole face rotation
@@ -305,7 +278,8 @@ void Cross::repositionBottomWhitePiece(int i, int j, FaceColor targetFaceColor) 
   }
 
   while (cube.getColorAtFaceAndLocation(FaceOrientation::FR, 2, 1) != targetFaceColor ||
-         cube.getColorAtFaceAndLocation(FaceOrientation::DO, 0, 1) != FaceColor::W) {
+         cube.getColorAtFaceAndLocation(FaceOrientation::DO, 0, 1) != FaceColor::W)
+  {
     cube.d();
   }
 
@@ -313,62 +287,95 @@ void Cross::repositionBottomWhitePiece(int i, int j, FaceColor targetFaceColor) 
   cube.f();
 }
 
+// ------------------------------------------------------------------------- //
 void Cross::repositionWhiteCrossPiece(const TargetItem target) {
   // Different rotations needed depending on whether top, middle, or bottom row
-  switch(target.orientation) {
+  switch(target.orientation)
+  {
     case FaceOrientation::UP:
+    {
       repositionTopWhitePiece(target.i, target.j);
       break;
+    }
     case FaceOrientation::RI:
     case FaceOrientation::FR:
     case FaceOrientation::LE:
     case FaceOrientation::BA:
-      if (target.i == 0) {
+    {
+      if (target.i == 0)
+      {
         // top row
         repositionTopInverseWhitePiece(target.orientation);
-      } else if (target.i == 1) {
+      }
+      else if (target.i == 1)
+      {
         // middle row
         repositionMiddleWhitePiece(target.orientation, target.j);
-      } else {
+      }
+      else
+      {
         // bottom row
         repositionBottomInverseWhitePiece(target.orientation);
       }
       break;
+    }
     case FaceOrientation::DO:
+    {
       repositionBottomWhitePiece(target.i, target.j, target.color);
       break;
+    }
     default:
+    {
       break;
+    }
   }
 }
 
-void Cross::reorientWhiteFaceToTop() {
+// ------------------------------------------------------------------------- //
+void Cross::reorientWhiteFaceToTop()
+{
   auto whiteFaceOrientation = findWhiteCenter();
-  switch(whiteFaceOrientation) {
+  switch(whiteFaceOrientation)
+  {
     case FaceOrientation::FR:
+    {
       cube.rotateCubeUp();
       break;
+    }
     case FaceOrientation::LE:
+    {
       cube.rotateCubeClockwise();
       break;
-    case FaceOrientation::RI: 
+    }
+    case FaceOrientation::RI:
+    {
       cube.rotateCubeAntiClockwise();
       break;
+    }
     case FaceOrientation::BA:
+    {
       cube.rotateCubeDown();
       break;
+    }
     case FaceOrientation::DO:
+    {
       cube.rotateCubeClockwise();
       cube.rotateCubeClockwise();
-      break; 
-    default:
       break;
+    }
+    default:
+    {
+      break;
+    }
   }
 }
 
+// ------------------------------------------------------------------------- //
 FaceOrientation Cross::findWhiteCenter() {
-  for (auto face = cube.roBegin(); face != cube.roEnd(); ++face) {
-    if (face->getColorAtIndices(1, 1) == FaceColor::W) {
+  for (auto face = cube.roBegin(); face != cube.roEnd(); ++face)
+  {
+    if (face->getColorAtIndices(1, 1) == FaceColor::W)
+    {
       return face->getOrientation();
     }
   }

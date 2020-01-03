@@ -23,17 +23,24 @@ int main()
   };
 
   CubeFace front;
-  FaceParser::parseFaceFromString(front, unparsedCube.at(0), FaceOrientation::FR);
   CubeFace left;
-  FaceParser::parseFaceFromString(left, unparsedCube.at(1), FaceOrientation::LE);
   CubeFace right;
-  FaceParser::parseFaceFromString(right, unparsedCube.at(2), FaceOrientation::RI);
   CubeFace bottom;
-  FaceParser::parseFaceFromString(bottom, unparsedCube.at(3), FaceOrientation::DO);
   CubeFace top;
-  FaceParser::parseFaceFromString(top, unparsedCube.at(4), FaceOrientation::UP);
   CubeFace back;
-  FaceParser::parseFaceFromString(back, unparsedCube.at(5), FaceOrientation::BA);
+
+  try {
+    front = FaceParser::parseFaceFromString(unparsedCube.at(0), FaceOrientation::FR);
+    left = FaceParser::parseFaceFromString(unparsedCube.at(1), FaceOrientation::LE);
+    right = FaceParser::parseFaceFromString(unparsedCube.at(2), FaceOrientation::RI);
+    bottom = FaceParser::parseFaceFromString(unparsedCube.at(3), FaceOrientation::DO);
+    top = FaceParser::parseFaceFromString(unparsedCube.at(4), FaceOrientation::UP);
+    back = FaceParser::parseFaceFromString(unparsedCube.at(5), FaceOrientation::BA);
+  }
+  catch (const std::out_of_range& oor) {
+    // TODO show error
+    return -1;
+  }
 
   Cube cube(std::array<CubeFace, 6>{front, left, right, bottom, top, back});
 

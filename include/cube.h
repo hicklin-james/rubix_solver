@@ -1,11 +1,10 @@
 #pragma once
 
+/** Local headers */
 #include "cube_face.h"
-
-/** Local headers **/
 #include "util.h"
 
-/** System headers **/
+/** System headers */
 #include <array>
 #include <string>
 #include <vector>
@@ -13,7 +12,7 @@
 class Cube
 {
   private:
-    
+
     std::array<CubeFace, 6> cubeState; // 6-item array holding cube state
     std::vector<std::string> moveHistory; // vector of rotation history
 
@@ -86,6 +85,16 @@ class Cube
     */
     FaceColor getColorAtFaceAndLocation(FaceOrientation orientation, 
                                         int i, int j);
+    
+    /**
+    * Function to get adjacent face color, given orientation and location
+    *
+    * @param orientation FaceOrientation the orientation of the face to check
+    * @param i int the i position of the face
+    * @param j int the j position of the face
+    * @return the adjacent face color of the input location
+    */
+    FaceColor getAdjacentFaceColor(FaceOrientation orientation, int i, int j);
 
     /**
     * These functions rotate the entire cube, which means the F, R, L, U, D, 
