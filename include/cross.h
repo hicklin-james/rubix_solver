@@ -33,10 +33,10 @@ class Cross : Step
     * Function to find the next unsolved cross piece piece. This function
     * sets the input item to the next unsolved target.
     *
-    * @param &item TargetItem the item to set
+    * @param &item SolveStep the item to set
     * @return boolean, true if there is still an unsolved piece, else false
     */
-  	bool nextUnsolvedCrossPiece(TargetItem &item);
+  	bool nextUnsolvedCrossPiece(SolveStep &item);
 
     /**
     * Function to reorient the cube so that the white face is UP.
@@ -58,9 +58,9 @@ class Cross : Step
     /**
     * Main function to reposition a white cross piece to solve the cross.
     *
-    * @param target TargetItem the target of the white cross piece
+    * @param target SolveStep the target of the white cross piece
     */
-    void repositionWhiteCrossPiece(const TargetItem target);
+    void repositionWhiteCrossPiece(const SolveStep target);
 
     /**
     * Function to reposition a top white piece to the bottom.
@@ -100,7 +100,7 @@ class Cross : Step
     *
     * @param i int the i position of the piece to reposition
     * @param j int the j position of the piece to reposition
-    * @param targetFaceColor FaceColor the FaceColor of the target on the cube
+    * @param targetFace FaceColor the FaceColor of the target on the cube
     */
-    void repositionBottomWhitePiece(int i, int j, FaceColor targetFaceColor);
+    void repositionBottomWhitePiece(int i, int j, FaceColor targetFace);
 };

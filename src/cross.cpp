@@ -17,18 +17,18 @@ Cross::Cross(Cube &cube) : Step(cube) {}
 // ------------------------------------------------------------------------- //
 void Cross::setupTargetLocations() 
 {
-  targets.insert({cube.getColorAtFaceAndLocation(FaceOrientation::LE, 1, 1),
+  targets.insert({cube.colorAtFaceAndLoc(FaceOrientation::LE, 1, 1),
                   std::make_pair(1, 0)});
-  targets.insert({cube.getColorAtFaceAndLocation(FaceOrientation::BA, 1, 1),
+  targets.insert({cube.colorAtFaceAndLoc(FaceOrientation::BA, 1, 1),
                   std::make_pair(0, 1)});
-  targets.insert({cube.getColorAtFaceAndLocation(FaceOrientation::RI, 1, 1),
+  targets.insert({cube.colorAtFaceAndLoc(FaceOrientation::RI, 1, 1),
                   std::make_pair(1, 2)});
-  targets.insert({cube.getColorAtFaceAndLocation(FaceOrientation::FR, 1, 1),
+  targets.insert({cube.colorAtFaceAndLoc(FaceOrientation::FR, 1, 1),
                   std::make_pair(2, 1)});
 }
 
 // ------------------------------------------------------------------------- //
-bool Cross::nextUnsolvedCrossPiece(TargetItem &unsolvedPiece)
+bool Cross::nextUnsolvedCrossPiece(SolveStep &unsolvedPiece)
 {
   for (auto face = cube.roBegin(); face != cube.roEnd(); ++face)
   {
@@ -54,8 +54,9 @@ bool Cross::nextUnsolvedCrossPiece(TargetItem &unsolvedPiece)
             {
               continue;
             }
-            unsolvedPiece.i = i;
-            unsolvedPiece.j = j;
+            unsolvedPiece.startLocation = std::make_pair(i, j);
+            //unsolvedPiece.i = i;
+            //unsolvedPiece.j = j;
             unsolvedPiece.color = adjColor;
             unsolvedPiece.orientation = face->getOrientation();
             unsolvedPiece.targetLocation = target;
@@ -73,7 +74,7 @@ void Cross::solveCross()
 {
   reorientWhiteFaceToTop();
   setupTargetLocations();
-  TargetItem unsolvedPiece;
+  SolveStep unsolvedPiece;
   while (nextUnsolvedCrossPiece(unsolvedPiece))
   {
     repositionWhiteCrossPiece(unsolvedPiece);
@@ -259,9 +260,9 @@ void Cross::repositionBottomInverseWhitePiece(FaceOrientation orientation)
 }
 
 // ------------------------------------------------------------------------- //
-void Cross::repositionBottomWhitePiece(int i, int j, FaceColor targetFaceColor)
+void Cross::repositionBottomWhitePiece(int i, int j, FaceColor targetFace)
 {
-  while (cube.getColorAtFaceAndLocation(FaceOrientation::FR, 1, 1) != targetFaceColor) 
+  while (cube.colorAtFaceAndLoc(FaceOrientation::FR, 1, 1) != targetFace) 
   {
     cube.rotateCubeRight();
 
@@ -277,8 +278,8 @@ void Cross::repositionBottomWhitePiece(int i, int j, FaceColor targetFaceColor)
     targets[FaceColor::G] = tempR;
   }
 
-  while (cube.getColorAtFaceAndLocation(FaceOrientation::FR, 2, 1) != targetFaceColor ||
-         cube.getColorAtFaceAndLocation(FaceOrientation::DO, 0, 1) != FaceColor::W)
+  while (cube.colorAtFaceAndLoc(FaceOrientation::FR, 2, 1) != targetFace ||
+         cube.colorAtFaceAndLoc(FaceOrientation::DO, 0, 1) != FaceColor::W)
   {
     cube.d();
   }
@@ -288,13 +289,14 @@ void Cross::repositionBottomWhitePiece(int i, int j, FaceColor targetFaceColor)
 }
 
 // ------------------------------------------------------------------------- //
-void Cross::repositionWhiteCrossPiece(const TargetItem target) {
+void Cross::repositionWhiteCrossPiece(const SolveStep target) {
   // Different rotations needed depending on whether top, middle, or bottom row
   switch(target.orientation)
   {
     case FaceOrientation::UP:
     {
-      repositionTopWhitePiece(target.i, target.j);
+      repositionTopWhitePiece(target.startLocation.first, 
+                              target.startLocation.second);
       break;
     }
     case FaceOrientation::RI:
@@ -302,15 +304,16 @@ void Cross::repositionWhiteCrossPiece(const TargetItem target) {
     case FaceOrientation::LE:
     case FaceOrientation::BA:
     {
-      if (target.i == 0)
+      if (target.startLocation.first == 0)
       {
         // top row
         repositionTopInverseWhitePiece(target.orientation);
       }
-      else if (target.i == 1)
+      else if (target.startLocation.first == 1)
       {
         // middle row
-        repositionMiddleWhitePiece(target.orientation, target.j);
+        repositionMiddleWhitePiece(target.orientation, 
+                                   target.startLocation.second);
       }
       else
       {
@@ -321,7 +324,9 @@ void Cross::repositionWhiteCrossPiece(const TargetItem target) {
     }
     case FaceOrientation::DO:
     {
-      repositionBottomWhitePiece(target.i, target.j, target.color);
+      repositionBottomWhitePiece(target.startLocation.first, 
+                                 target.startLocation.second, 
+                                 target.color);
       break;
     }
     default:

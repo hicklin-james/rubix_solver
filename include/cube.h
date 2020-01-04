@@ -83,8 +83,7 @@ class Cube
     *
     * @return the FaceColor at the specified position
     */
-    FaceColor getColorAtFaceAndLocation(FaceOrientation orientation, 
-                                        int i, int j);
+    FaceColor colorAtFaceAndLoc(FaceOrientation orientation, int i, int j);
     
     /**
     * Function to get adjacent face color, given orientation and location
