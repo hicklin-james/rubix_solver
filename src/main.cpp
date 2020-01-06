@@ -1,7 +1,8 @@
 #include "util.h"
 #include "cube.h"
 #include "face_parser.h"
-#include "cross.h"
+#include "white_cross.h"
+#include "white_corners.h"
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include <array>
@@ -14,12 +15,12 @@ int main()
   spdlog::info("Welcome to the rubix solver!");
 
   std::array<std::string, 6> unparsedCube{ 
-    "G,O,Y,R,R,Y,R,G,G", // front
-    "B,R,R,O,G,G,W,O,Y", // left
-    "O,B,R,B,B,B,O,Y,Y", // right
-    "B,W,W,Y,Y,R,B,B,G", // bottom
-    "O,G,G,W,W,O,Y,G,B", // top
-    "W,Y,W,R,O,W,O,W,R"  // back
+    "G,G,G,Y,O,B,O,W,W", // front
+    "O,W,Y,O,Y,R,W,B,B", // left
+    "Y,O,R,O,W,G,R,G,R", // right
+    "Y,B,G,Y,G,O,G,G,Y", // bottom
+    "W,R,W,R,B,W,O,W,R", // top
+    "B,B,B,Y,R,Y,B,R,O"  // back
   };
 
   CubeFace front;
@@ -47,11 +48,16 @@ int main()
   cube.printCube();
 
 
-  Cross crossSolver(cube);
+  WhiteCross crossSolver(cube);
 
   //cube.rotateCubeAntiClockwise();
   //cube.printCube();
-  crossSolver.solveCross();
+  crossSolver.solveStep();
+
+  cube.printCube();
+
+  WhiteCorners cornersSolver(cube);
+  cornersSolver.solveStep();
 
   cube.printCube();
 

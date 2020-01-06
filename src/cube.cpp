@@ -86,9 +86,193 @@ FaceColor Cube::colorAtFaceAndLoc(FaceOrientation orientation,
 }
 
 // ------------------------------------------------------------------------- //
-FaceColor Cube::getAdjacentFaceColor(FaceOrientation orientation, int i, int j) {
+std::pair<FaceColor, FaceColor> Cube::getAdjacentColors(
+  FaceOrientation orientation, int i, int j
+)
+{
   switch(orientation) {
     case FaceOrientation::FR:
+    {
+      if (i == 0 && j == 0) {
+        return std::make_pair(
+          colorAtFaceAndLoc(FaceOrientation::UP, 2, 0),
+          colorAtFaceAndLoc(FaceOrientation::LE, 0, 2)
+        );
+      }
+      else if (i == 0 && j == 2) {
+        return std::make_pair(
+          colorAtFaceAndLoc(FaceOrientation::UP, 2, 2),
+          colorAtFaceAndLoc(FaceOrientation::RI, 0, 0)
+        );
+      }
+      else if (i == 2 && j == 0) {
+        return std::make_pair(
+          colorAtFaceAndLoc(FaceOrientation::LE, 2, 2),
+          colorAtFaceAndLoc(FaceOrientation::DO, 0, 0)
+        );
+      }
+      else if (i == 2 && j == 2) {
+        return std::make_pair(
+          colorAtFaceAndLoc(FaceOrientation::RI, 2, 0),
+          colorAtFaceAndLoc(FaceOrientation::DO, 0, 2)
+        );
+      }
+      break;
+    }
+    case FaceOrientation::LE:
+    {
+      if (i == 0 && j == 0) {
+        return std::make_pair(
+          colorAtFaceAndLoc(FaceOrientation::UP, 0, 0),
+          colorAtFaceAndLoc(FaceOrientation::BA, 0, 2)
+        );
+      }
+      else if (i == 0 && j == 2) {
+        return std::make_pair(
+          colorAtFaceAndLoc(FaceOrientation::UP, 2, 0),
+          colorAtFaceAndLoc(FaceOrientation::FR, 0, 0)
+        );
+      }
+      else if (i == 2 && j == 0) {
+        return std::make_pair(
+          colorAtFaceAndLoc(FaceOrientation::DO, 2, 0),
+          colorAtFaceAndLoc(FaceOrientation::BA, 2, 2)
+        );
+      }
+      else if (i == 2 && j == 2) {
+        return std::make_pair(
+          colorAtFaceAndLoc(FaceOrientation::DO, 0, 0),
+          colorAtFaceAndLoc(FaceOrientation::FR, 2, 0)
+        );
+      }
+      break;
+    }
+    case FaceOrientation::RI:
+    {
+      if (i == 0 && j == 0) {
+        return std::make_pair(
+          colorAtFaceAndLoc(FaceOrientation::UP, 2, 2),
+          colorAtFaceAndLoc(FaceOrientation::FR, 0, 2)
+        );
+      }
+      else if (i == 0 && j == 2) {
+        return std::make_pair(
+          colorAtFaceAndLoc(FaceOrientation::UP, 0, 2),
+          colorAtFaceAndLoc(FaceOrientation::BA, 0, 0)
+        );
+      }
+      else if (i == 2 && j == 0) {
+        return std::make_pair(
+          colorAtFaceAndLoc(FaceOrientation::DO, 0, 2),
+          colorAtFaceAndLoc(FaceOrientation::FR, 2, 2)
+        );
+      }
+      else if (i == 2 && j == 2) {
+        return std::make_pair(
+          colorAtFaceAndLoc(FaceOrientation::DO, 2, 2),
+          colorAtFaceAndLoc(FaceOrientation::BA, 2, 0)
+        );
+      }
+      break;
+    }
+    case FaceOrientation::BA:
+    {
+      if (i == 0 && j == 0) {
+        return std::make_pair(
+          colorAtFaceAndLoc(FaceOrientation::UP, 0, 2),
+          colorAtFaceAndLoc(FaceOrientation::RI, 0, 2)
+        );
+      }
+      else if (i == 0 && j == 2) {
+        return std::make_pair(
+          colorAtFaceAndLoc(FaceOrientation::UP, 0, 0),
+          colorAtFaceAndLoc(FaceOrientation::LE, 0, 0)
+        );
+      }
+      else if (i == 2 && j == 0) {
+        return std::make_pair(
+          colorAtFaceAndLoc(FaceOrientation::DO, 2, 2),
+          colorAtFaceAndLoc(FaceOrientation::RI, 2, 2)
+        );
+      }
+      else if (i == 2 && j == 2) {
+        return std::make_pair(
+          colorAtFaceAndLoc(FaceOrientation::DO, 2, 0),
+          colorAtFaceAndLoc(FaceOrientation::LE, 2, 0)
+        );
+      }
+      break;
+    }
+    case FaceOrientation::DO:
+    {
+      if (i == 0 && j == 0) {
+        return std::make_pair(
+          colorAtFaceAndLoc(FaceOrientation::FR, 2, 0),
+          colorAtFaceAndLoc(FaceOrientation::LE, 2, 2)
+        );
+      }
+      else if (i == 0 && j == 2) {
+        return std::make_pair(
+          colorAtFaceAndLoc(FaceOrientation::FR, 2, 2),
+          colorAtFaceAndLoc(FaceOrientation::RI, 2, 0)
+        );
+      }
+      else if (i == 2 && j == 0) {
+        return std::make_pair(
+          colorAtFaceAndLoc(FaceOrientation::BA, 2, 2),
+          colorAtFaceAndLoc(FaceOrientation::LE, 2, 0)
+        );
+      }
+      else if (i == 2 && j == 2) {
+        return std::make_pair(
+          colorAtFaceAndLoc(FaceOrientation::BA, 2, 0),
+          colorAtFaceAndLoc(FaceOrientation::RI, 2, 2)
+        );
+      }
+      break;
+    }
+    case FaceOrientation::UP:
+    {
+      if (i == 0 && j == 0) {
+        return std::make_pair(
+          colorAtFaceAndLoc(FaceOrientation::LE, 0, 0),
+          colorAtFaceAndLoc(FaceOrientation::BA, 0, 2)
+        );
+      }
+      else if (i == 0 && j == 2) {
+        return std::make_pair(
+          colorAtFaceAndLoc(FaceOrientation::RI, 0, 2),
+          colorAtFaceAndLoc(FaceOrientation::BA, 0, 0)
+        );
+      }
+      else if (i == 2 && j == 0) {
+        return std::make_pair(
+          colorAtFaceAndLoc(FaceOrientation::LE, 0, 2),
+          colorAtFaceAndLoc(FaceOrientation::FR, 0, 0)
+        );
+      }
+      else if (i == 2 && j == 2) {
+        return std::make_pair(
+          colorAtFaceAndLoc(FaceOrientation::RI, 0, 0),
+          colorAtFaceAndLoc(FaceOrientation::FR, 0, 2)
+        );
+      }
+      break;
+    }
+    default:
+    {
+      break;
+    }
+  }
+  return std::make_pair(FaceColor::FC_ERR, FaceColor::FC_ERR);
+}
+
+// ------------------------------------------------------------------------- //
+FaceColor Cube::getAdjacentFaceColor(FaceOrientation orientation, int i, int j) 
+{
+  switch(orientation) {
+    case FaceOrientation::FR:
+    {
       if (i == 0 && j == 1) {
         return colorAtFaceAndLoc(FaceOrientation::UP, 2, 1);
       }
@@ -102,7 +286,9 @@ FaceColor Cube::getAdjacentFaceColor(FaceOrientation orientation, int i, int j) 
         return colorAtFaceAndLoc(FaceOrientation::DO, 0, 1);
       }
       break;
+    }
     case FaceOrientation::LE:
+    {
       if (i == 0 && j == 1) {
         return colorAtFaceAndLoc(FaceOrientation::UP, 1, 0);
       }
@@ -116,7 +302,9 @@ FaceColor Cube::getAdjacentFaceColor(FaceOrientation orientation, int i, int j) 
         return colorAtFaceAndLoc(FaceOrientation::DO, 1, 0);
       }
       break;
+    }
     case FaceOrientation::RI:
+    {
       if (i == 0 && j == 1) {
         return colorAtFaceAndLoc(FaceOrientation::UP, 1, 2);
       }
@@ -130,7 +318,9 @@ FaceColor Cube::getAdjacentFaceColor(FaceOrientation orientation, int i, int j) 
         return colorAtFaceAndLoc(FaceOrientation::DO, 1, 2);
       }
       break;
+    }
     case FaceOrientation::BA:
+    {
       if (i == 0 && j == 1) {
         return colorAtFaceAndLoc(FaceOrientation::UP, 0, 1);
       }
@@ -144,7 +334,9 @@ FaceColor Cube::getAdjacentFaceColor(FaceOrientation orientation, int i, int j) 
         return colorAtFaceAndLoc(FaceOrientation::DO, 2, 1);
       }
       break;
+    }
     case FaceOrientation::DO:
+    {
       if (i == 0 && j == 1) {
         return colorAtFaceAndLoc(FaceOrientation::FR, 2, 1);
       }
@@ -158,7 +350,9 @@ FaceColor Cube::getAdjacentFaceColor(FaceOrientation orientation, int i, int j) 
         return colorAtFaceAndLoc(FaceOrientation::BA, 2, 1);
       }
       break;
+    }
     case FaceOrientation::UP:
+    {
       if (i == 0 && j == 1) {
         return colorAtFaceAndLoc(FaceOrientation::BA, 0, 1);
       }
@@ -171,9 +365,12 @@ FaceColor Cube::getAdjacentFaceColor(FaceOrientation orientation, int i, int j) 
       else if (i == 2 && j == 1) {
         return colorAtFaceAndLoc(FaceOrientation::FR, 0, 1);
       }
-      break; 
-    default:
       break;
+    }
+    default:
+    {
+      break;
+    }
   }
   return FaceColor::FC_ERR;
 }

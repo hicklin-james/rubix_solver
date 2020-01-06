@@ -1,5 +1,5 @@
 /** Class header */
-#include "cross.h"
+#include "white_cross.h"
 
 /** Local headers */
 #include "cube_face.h"
@@ -10,26 +10,60 @@
 
 /** System headers */
 #include <iostream>
+#include <functional>
 
 // ------------------------------------------------------------------------- //
-Cross::Cross(Cube &cube) : Step(cube) {}
+WhiteCross::WhiteCross(Cube &cube) : Step(cube) {}
 
 // ------------------------------------------------------------------------- //
-void Cross::setupTargetLocations() 
+void WhiteCross::setupTargetLocations() 
 {
-  targets.insert({cube.colorAtFaceAndLoc(FaceOrientation::LE, 1, 1),
-                  std::make_pair(1, 0)});
-  targets.insert({cube.colorAtFaceAndLoc(FaceOrientation::BA, 1, 1),
-                  std::make_pair(0, 1)});
-  targets.insert({cube.colorAtFaceAndLoc(FaceOrientation::RI, 1, 1),
-                  std::make_pair(1, 2)});
-  targets.insert({cube.colorAtFaceAndLoc(FaceOrientation::FR, 1, 1),
-                  std::make_pair(2, 1)});
+  targets.push_back({
+    std::make_pair(1,0),
+    FaceOrientation::UP,
+    FaceColor::W,
+    std::vector<std::pair<FaceColor, FaceOrientation>>{
+      std::make_pair(cube.colorAtFaceAndLoc(FaceOrientation::LE, 1, 1),
+                     FaceOrientation::LE)
+    }
+  });
+
+  targets.push_back({
+    std::make_pair(0,1),
+    FaceOrientation::UP,
+    FaceColor::W,
+    std::vector<std::pair<FaceColor, FaceOrientation>>{
+      std::make_pair(cube.colorAtFaceAndLoc(FaceOrientation::BA, 1, 1),
+                     FaceOrientation::BA)
+    }
+  });
+
+  targets.push_back({
+    std::make_pair(1,2),
+    FaceOrientation::UP,
+    FaceColor::W,
+    std::vector<std::pair<FaceColor, FaceOrientation>>{
+      std::make_pair(cube.colorAtFaceAndLoc(FaceOrientation::RI, 1, 1),
+                     FaceOrientation::RI)
+    }
+  });
+
+  targets.push_back({
+    std::make_pair(2,1),
+    FaceOrientation::UP,
+    FaceColor::W,
+    std::vector<std::pair<FaceColor, FaceOrientation>>{
+      std::make_pair(cube.colorAtFaceAndLoc(FaceOrientation::FR, 1, 1),
+                     FaceOrientation::FR)
+    }
+  });
 }
 
 // ------------------------------------------------------------------------- //
-bool Cross::nextUnsolvedCrossPiece(SolveStep &unsolvedPiece)
+bool WhiteCross::nextUnsolvedCrossPiece(SolveStep &unsolvedPiece)
 {
+  auto retryTarg = findTargetThatNeedsRetry();
+
   for (auto face = cube.roBegin(); face != cube.roEnd(); ++face)
   {
     for (int i = 0; i < face->squares.size(); i++) 
@@ -38,29 +72,42 @@ bool Cross::nextUnsolvedCrossPiece(SolveStep &unsolvedPiece)
       {
         if (face->squares[i][j] == FaceColor::W) 
         {
-          if (
-              (i == 0 && j == 1) ||
+          if ((i == 0 && j == 1) ||
               (i == 1 && j == 0) ||
               (i == 1 && j == 2) ||
-              (i == 2 && j == 1)
-             ) 
+              (i == 2 && j == 1)) 
           {
             auto adjColor = cube.getAdjacentFaceColor(face->getOrientation(), 
                                                       i, j);
-            auto target = targets.at(adjColor);
-            if (i == target.first &&
-                j == target.second &&
-                face->getOrientation() == FaceOrientation::UP) 
+            // find target with matching adjacent color
+            auto target = std::find_if(
+              targets.begin(),
+              targets.end(),
+              [&] (const auto& targ) 
+              {
+                return targ.adjacentColors.at(0).first == adjColor;
+              }
+            );
+
+            if (target != targets.end())
             {
-              continue;
+              auto completed = i == target->position.first &&
+                               j == target->position.second &&
+                               face->getOrientation() == target->face;
+              auto retrySet = retryTarg != targets.end() && 
+                              target->position != retryTarg->position &&
+                              target->face == retryTarg->face;
+
+              if (completed || retrySet)
+              {
+                continue;
+              }
+
+              unsolvedPiece.startLocation = std::make_pair(i, j);
+              unsolvedPiece.orientation = face->getOrientation();
+              unsolvedPiece.targetLocation = *target;
+              return true;
             }
-            unsolvedPiece.startLocation = std::make_pair(i, j);
-            //unsolvedPiece.i = i;
-            //unsolvedPiece.j = j;
-            unsolvedPiece.color = adjColor;
-            unsolvedPiece.orientation = face->getOrientation();
-            unsolvedPiece.targetLocation = target;
-            return true;
           }
         }
       }
@@ -70,7 +117,7 @@ bool Cross::nextUnsolvedCrossPiece(SolveStep &unsolvedPiece)
 }
 
 // ------------------------------------------------------------------------- //
-void Cross::solveCross()
+void WhiteCross::solveStep()
 {
   reorientWhiteFaceToTop();
   setupTargetLocations();
@@ -82,7 +129,7 @@ void Cross::solveCross()
 }
 
 // ------------------------------------------------------------------------- //
-void Cross::repositionTopWhitePiece(int i, int j)
+void WhiteCross::repositionTopWhitePiece(int i, int j)
 {
   if (i == 0 && j == 1)
   {
@@ -107,7 +154,7 @@ void Cross::repositionTopWhitePiece(int i, int j)
 }
 
 // ------------------------------------------------------------------------- //
-void Cross::repositionTopInverseWhitePiece(FaceOrientation orientation)
+void WhiteCross::repositionTopInverseWhitePiece(FaceOrientation orientation)
 {
   switch(orientation)
   {
@@ -151,7 +198,7 @@ void Cross::repositionTopInverseWhitePiece(FaceOrientation orientation)
 }
 
 // ------------------------------------------------------------------------- //
-void Cross::repositionMiddleWhitePiece(FaceOrientation orientation, int j)
+void WhiteCross::repositionMiddleWhitePiece(FaceOrientation orientation, int j)
 {
   switch(orientation)
   {
@@ -226,70 +273,152 @@ void Cross::repositionMiddleWhitePiece(FaceOrientation orientation, int j)
   }
 }
 
-void Cross::repositionBottomInverseWhitePiece(FaceOrientation orientation)
+// ------------------------------------------------------------------------- //
+void WhiteCross::repositionBottomInverseWhitePiece(FaceOrientation orientation)
 {
   switch(orientation)
   {
     case FaceOrientation::RI:
+    {
       cube.r();
       cube.f();
       cube.d();
       cube.fi();
       break;
+    }
     case FaceOrientation::FR:
+    {
       cube.f();
       cube.l();
       cube.d();
       cube.li();
       break;
+    }
     case FaceOrientation::LE:
+    {
       cube.li();
       cube.fi();
       cube.di();
       cube.f();
       break;
+    }
     case FaceOrientation::BA:
+    {
       cube.b();
       cube.r();
       cube.d();
       cube.ri();
       break;
+    }
     default:
+    {
       return;
+    }
   }
 }
 
 // ------------------------------------------------------------------------- //
-void Cross::repositionBottomWhitePiece(int i, int j, FaceColor targetFace)
+std::function<void(Cube&)> WhiteCross::getRotationForFinalPosition(
+  FaceOrientation endFace
+)
 {
-  while (cube.colorAtFaceAndLoc(FaceOrientation::FR, 1, 1) != targetFace) 
+  std::function<void(Cube&)> rot;
+  switch (endFace)
   {
-    cube.rotateCubeRight();
+    case FaceOrientation::FR:
+    {
+      rot = &Cube::f;
+      break;
+    }
+    case FaceOrientation::RI:
+    {
+      rot = &Cube::r;
+      break;
+    }
+    case FaceOrientation::BA:
+    {
+      rot = &Cube::b;
+      break;
+    }
+    case FaceOrientation::LE:
+    {
+      rot = &Cube::l;
+      break;
+    }
+    default:
+    {
+      break;
+    }
+  }
+  return rot;
+}
 
-    // targets need to be updated with whole face rotation
-    auto tempG = targets.at(FaceColor::G);
-    auto tempO = targets.at(FaceColor::O);
-    auto tempB = targets.at(FaceColor::B);
-    auto tempR = targets.at(FaceColor::R);
+// ------------------------------------------------------------------------- //
+int WhiteCross::getNumRotationsBetweenFaces(FaceOrientation startFace,
+                                            FaceOrientation endFace)
+{
+  std::unordered_map<int, int> mapping{
+    {FaceOrientation::FR, 0},
+    {FaceOrientation::RI, 1},
+    {FaceOrientation::BA, 2},
+    {FaceOrientation::LE, 3}
+  };
 
-    targets[FaceColor::O] = tempG;
-    targets[FaceColor::B] = tempO;
-    targets[FaceColor::R] = tempB;
-    targets[FaceColor::G] = tempR;
+  auto start = mapping.at(startFace);
+  auto end = mapping.at(endFace);
+  
+  if (start == end)
+  {
+    return 0;
+  }
+  else if (start < end)
+  {
+    return abs(start-end);
+  }
+  else
+  {
+    return (4-abs(start-end));
+  }
+}
+
+// ------------------------------------------------------------------------- //
+void WhiteCross::repositionBottomWhitePiece(int i, 
+                                            int j,
+                                            FaceOrientation endFace)
+{
+  auto rot = getRotationForFinalPosition(endFace);
+  int numRotations = 0;
+
+  if (i == 0 && j == 1) 
+  {
+    numRotations = getNumRotationsBetweenFaces(FaceOrientation::FR, endFace);
+  }
+  else if (i == 1 && j == 0)
+  {
+    numRotations = getNumRotationsBetweenFaces(FaceOrientation::LE, endFace);
+  }
+  else if (i == 1 && j == 2)
+  {
+    numRotations = getNumRotationsBetweenFaces(FaceOrientation::RI, endFace);
+  }
+  else if (i == 2 && j == 1)
+  {
+    numRotations = getNumRotationsBetweenFaces(FaceOrientation::BA, endFace);
   }
 
-  while (cube.colorAtFaceAndLoc(FaceOrientation::FR, 2, 1) != targetFace ||
-         cube.colorAtFaceAndLoc(FaceOrientation::DO, 0, 1) != FaceColor::W)
+  int counter = 0;
+  while (counter < numRotations)
   {
     cube.d();
+    counter++;
   }
-
-  cube.f();
-  cube.f();
+  rot(cube);
+  rot(cube);
 }
 
 // ------------------------------------------------------------------------- //
-void Cross::repositionWhiteCrossPiece(const SolveStep target) {
+void WhiteCross::repositionWhiteCrossPiece(const SolveStep target) 
+{
   // Different rotations needed depending on whether top, middle, or bottom row
   switch(target.orientation)
   {
@@ -297,6 +426,9 @@ void Cross::repositionWhiteCrossPiece(const SolveStep target) {
     {
       repositionTopWhitePiece(target.startLocation.first, 
                               target.startLocation.second);
+      retryTarget(target.targetLocation.face, 
+                  target.targetLocation.position.first, 
+                  target.targetLocation.position.second);
       break;
     }
     case FaceOrientation::RI:
@@ -320,13 +452,23 @@ void Cross::repositionWhiteCrossPiece(const SolveStep target) {
         // bottom row
         repositionBottomInverseWhitePiece(target.orientation);
       }
+
+      retryTarget(target.targetLocation.face, 
+                  target.targetLocation.position.first, 
+                  target.targetLocation.position.second);
       break;
     }
     case FaceOrientation::DO:
     {
+      auto adjacentTargetFace = target
+                                .targetLocation
+                                .adjacentColors
+                                .at(0)
+                                .second;
+
       repositionBottomWhitePiece(target.startLocation.first, 
                                  target.startLocation.second, 
-                                 target.color);
+                                 adjacentTargetFace);
       break;
     }
     default:
@@ -337,7 +479,7 @@ void Cross::repositionWhiteCrossPiece(const SolveStep target) {
 }
 
 // ------------------------------------------------------------------------- //
-void Cross::reorientWhiteFaceToTop()
+void WhiteCross::reorientWhiteFaceToTop()
 {
   auto whiteFaceOrientation = findWhiteCenter();
   switch(whiteFaceOrientation)
@@ -376,7 +518,7 @@ void Cross::reorientWhiteFaceToTop()
 }
 
 // ------------------------------------------------------------------------- //
-FaceOrientation Cross::findWhiteCenter() {
+FaceOrientation WhiteCross::findWhiteCenter() {
   for (auto face = cube.roBegin(); face != cube.roEnd(); ++face)
   {
     if (face->getColorAtIndices(1, 1) == FaceColor::W)

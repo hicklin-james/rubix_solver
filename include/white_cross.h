@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <utility>
 
-class Cross : Step 
+class WhiteCross : Step 
 {
   public:
 
@@ -17,26 +17,23 @@ class Cross : Step
     *
     * @param &cube Cube
     */
-    Cross(Cube &cube);
+    WhiteCross(Cube &cube);
 
     /**
-    * Main function to start the logic to solve the cross.
+    * solveStep function implementation for white cross
     */
-    void solveCross();
+    void solveStep();
 
   private:
 
-    // map of targets for white cross
-  	std::unordered_map<FaceColor, std::pair<int, int>> targets;
-
     /**
-    * Function to find the next unsolved cross piece piece. This function
+    * Function to find the next unsolved cross piece. This function
     * sets the input item to the next unsolved target.
     *
-    * @param &item SolveStep the item to set
+    * @param &unsolvedPiece SolveStep the item to set
     * @return boolean, true if there is still an unsolved piece, else false
     */
-  	bool nextUnsolvedCrossPiece(SolveStep &item);
+  	bool nextUnsolvedCrossPiece(SolveStep &unsolvedPiece);
 
     /**
     * Function to reorient the cube so that the white face is UP.
@@ -72,6 +69,9 @@ class Cross : Step
 
     /**
     * Function to reposition a top inverse white piece to the bottom.
+    * 
+    * Note: "Inverse" means the white cell is on the front, left, right,
+    *       or back face
     *
     * @param orientation FaceOrientation the orientation where the piece
     *        is located
@@ -90,17 +90,43 @@ class Cross : Step
     /**
     * Function to reposition a bottom inverse white piece to the bottom.
     *
+    * Note: "inverse" means the white cell is on the front, left, right,
+    *       or back face
+    *
     * @param orientation FaceOrientation the orientation where the piece
     *        is located
     */
     void repositionBottomInverseWhitePiece(FaceOrientation orientation);
 
     /**
-    * Function to reposition a bottom inverse white piece to the bottom.
+    * Given an end face for the white cross, this function returns the
+    * rotation function needed to move the piece to the final position
     *
-    * @param i int the i position of the piece to reposition
-    * @param j int the j position of the piece to reposition
-    * @param targetFace FaceColor the FaceColor of the target on the cube
+    * @param endFace FaceOrientation the orientation of the target face
+    * @return an std::function pointing to the rotation function
     */
-    void repositionBottomWhitePiece(int i, int j, FaceColor targetFace);
+    std::function<void(Cube&)> getRotationForFinalPosition(
+      FaceOrientation endFace
+    );
+
+    /**
+    * Get the number of down rotations needed to match the startFace
+    * with the endFace.
+    *
+    * @param startFace FaceOrientation the starting face
+    * @param endFace FaceOrientation the ending face
+    */
+    int getNumRotationsBetweenFaces(FaceOrientation startFace,
+                                    FaceOrientation endFace);
+
+    /**
+    * Function to reposition a bottom white piece to the final position.
+    *
+    * @param int i the i position of the piece
+    * @param int j the j position of the piece
+    * @param endFace FaceOrientation the end face of the piece
+    */
+    void repositionBottomWhitePiece(int i, 
+                                    int j, 
+                                    FaceOrientation endFace);
 };

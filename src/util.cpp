@@ -1,6 +1,7 @@
 /** Class header */
 #include "util.h"
 
+// ------------------------------------------------------------------------- //
 Util::ColMap Util::str2FaceColor = {
   { "O", FaceColor::O },
   { "B", FaceColor::B },

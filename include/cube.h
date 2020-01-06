@@ -96,6 +96,19 @@ class Cube
     FaceColor getAdjacentFaceColor(FaceOrientation orientation, int i, int j);
 
     /**
+    * Function to get adjacent face colors of a corner piece, given 
+    * orientation and location
+    *
+    * @param orientation FaceOrientation the orientation of the face to check
+    * @param i int the i position of the face
+    * @param j int the j position of the face
+    * @return the adjacent face colors of the input corner location
+    */
+    std::pair<FaceColor, FaceColor> getAdjacentColors(
+      FaceOrientation orientation, int i, int j
+    );
+
+    /**
     * These functions rotate the entire cube, which means the F, R, L, U, D, 
     * and B faces change
     */
