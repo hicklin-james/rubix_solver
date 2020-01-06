@@ -5,6 +5,7 @@
 #include "white_corners.h"
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
+#include "valid_cubes.h"
 #include <array>
 #include <iostream>
 #include <string>
@@ -14,14 +15,7 @@ int main()
 {
   spdlog::info("Welcome to the rubix solver!");
 
-  std::array<std::string, 6> unparsedCube{ 
-    "G,G,G,Y,O,B,O,W,W", // front
-    "O,W,Y,O,Y,R,W,B,B", // left
-    "Y,O,R,O,W,G,R,G,R", // right
-    "Y,B,G,Y,G,O,G,G,Y", // bottom
-    "W,R,W,R,B,W,O,W,R", // top
-    "B,B,B,Y,R,Y,B,R,O"  // back
-  };
+  auto unparsedCube = ValidCubes::unparsedCubeB;
 
   CubeFace front;
   CubeFace left;
