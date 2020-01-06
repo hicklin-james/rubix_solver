@@ -119,6 +119,7 @@ bool WhiteCross::nextUnsolvedCrossPiece(SolveStep &unsolvedPiece)
 // ------------------------------------------------------------------------- //
 void WhiteCross::solveStep()
 {
+  spdlog::info("Starting to solve white cross.");
   reorientWhiteFaceToTop();
   setupTargetLocations();
   SolveStep unsolvedPiece;
@@ -126,6 +127,7 @@ void WhiteCross::solveStep()
   {
     repositionWhiteCrossPiece(unsolvedPiece);
   }
+  spdlog::info("White cross solved!");
 }
 
 // ------------------------------------------------------------------------- //

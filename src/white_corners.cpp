@@ -3,6 +3,8 @@
 
 /** Local headers */
 #include "enum2Str.hpp"
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
 #include "util.h"
 
 /** System headers */
@@ -395,6 +397,7 @@ void WhiteCorners::repositionWhiteCornerPiece(SolveStep &unsolvedPiece)
 
 // ------------------------------------------------------------------------- //
 void WhiteCorners::solveStep() {
+  spdlog::info("Starting to solve white corners.");
   setupTargetLocations();
   SolveStep unsolvedPiece;
 
@@ -402,4 +405,5 @@ void WhiteCorners::solveStep() {
   {
     repositionWhiteCornerPiece(unsolvedPiece);
   }
+  spdlog::info("White corners solved!");
 }

@@ -384,14 +384,14 @@ void Cube::printMoveHistory() const
      historyString += move + ",";
   }
   historyString.pop_back();
-  std::cout << "Moves required: " << historyString << std::endl;
+  spdlog::info("Moves required: " + historyString);
 }
 
 // ------------------------------------------------------------------------- //
-void Cube::printCube() const 
+void Cube::printCube(std::string cubePrefix) const 
 {
   std::ostringstream stringBuf;
-  stringBuf << "Current cube state:" << std::endl;
+  stringBuf << cubePrefix << std::endl;
   stringBuf << std::left << std::setw(8) << "";
   cubeState[4].printRow(0, stringBuf);
   stringBuf << std::endl << std::left << std::setw(8) << "";

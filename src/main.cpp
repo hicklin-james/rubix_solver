@@ -17,29 +17,32 @@ int main()
 
   auto unparsedCube = ValidCubes::unparsedCubeB;
 
-  CubeFace front;
-  CubeFace left;
-  CubeFace right;
-  CubeFace bottom;
-  CubeFace top;
-  CubeFace back;
+  CubeFace front, left, right, bottom, top, back;
+  std::array<CubeFace, 6> faces{front, left, right, bottom, top, back};
+  std::array<FaceOrientation, 6> faceOrientations{
+    FaceOrientation::FR,
+    FaceOrientation::LE,
+    FaceOrientation::RI,
+    FaceOrientation::DO,
+    FaceOrientation::UP,
+    FaceOrientation::BA
+  };
 
   try {
-    front = FaceParser::parseFaceFromString(unparsedCube.at(0), FaceOrientation::FR);
-    left = FaceParser::parseFaceFromString(unparsedCube.at(1), FaceOrientation::LE);
-    right = FaceParser::parseFaceFromString(unparsedCube.at(2), FaceOrientation::RI);
-    bottom = FaceParser::parseFaceFromString(unparsedCube.at(3), FaceOrientation::DO);
-    top = FaceParser::parseFaceFromString(unparsedCube.at(4), FaceOrientation::UP);
-    back = FaceParser::parseFaceFromString(unparsedCube.at(5), FaceOrientation::BA);
+    for (int i = 0; i < faces.size(); i++)
+    {
+      faces[i] = FaceParser::parseFaceFromString(unparsedCube.at(i), faceOrientations.at(i));
+    }
   }
   catch (const std::out_of_range& oor) {
     // TODO show error
     return -1;
   }
 
-  Cube cube(std::array<CubeFace, 6>{front, left, right, bottom, top, back});
+  Cube cube(faces);
 
-  cube.printCube();
+  //spdlog::info("Initial cube state:");
+  cube.printCube("Initial cube state:");
 
 
   WhiteCross crossSolver(cube);
@@ -56,7 +59,6 @@ int main()
   cube.printCube();
 
   cube.printMoveHistory();
-  //cube.printCube();
 
 
   /** This is a valid solve for the cube! **/
@@ -101,8 +103,6 @@ int main()
   // cube.u();
   // cube.l();
   // cube.l();
-
-  // cube.printCube();
 
   return 0;
 }

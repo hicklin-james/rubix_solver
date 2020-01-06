@@ -50,8 +50,10 @@ class Cube
     *       / G G B
     *  FRONT  O Y R -- DOWN
     *         G G B
+    *
+    * @param cubePrefix std::string the prefix to use before printing the cube
     */
-    void printCube() const;
+    void printCube(std::string cubePrefix = "Current cube state:") const;
 
     /**
     * Function to print the history of moves that have been performed
